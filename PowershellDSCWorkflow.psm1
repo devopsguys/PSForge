@@ -84,10 +84,11 @@ function Test-DSCModule
 {
 param (
     [ValidateSet('create', 'converge', 'verify', 'test','destroy')]
-    [string] $action = 'verify'
+    [string] $Action = 'verify',
+    [switch] $Debug
 )
 
-    Write-Output "Action: $action"
+    Write-Output "Action: $Action"
 
     $azureRMCredentials = "$env:home/.azure/credentials"
 
@@ -112,8 +113,15 @@ param (
         $env:AZURERM_SUBSCRIPTION = $prompt
      }
 
+     $KitchenParams = $Action
+
+     if($Debug)
+     {
+         $KitchenParams += " --log-level Debug"
+     }
+
      Invoke-Expression ".paket\paket.exe update"
-     Invoke-Expression "bundle exec kitchen $action --log-level Debug"
+     Invoke-Expression "bundle exec kitchen ${KitchenParams}"
 
 }
 
