@@ -8,3 +8,4 @@
 - `New-DSCModule`
 - `New-DSCResource`
 - `Package-DSCModule`
+- `Test-DSCModule`
