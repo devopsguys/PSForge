@@ -16,16 +16,18 @@ param(
 
     Invoke-Plaster @PlasterParams
 
-    $PlasterParams = @{
-     TemplatePath = "$PSScriptRoot\paket-files\devopsguys\plaster-powershell-dsc-scaffolding\plaster-powershell-dsc-resource";
-     DestinationPath = "$ModuleName\packages\DSCResources\"
-     project_name = $resource
-    }
-
     foreach ($resource in $ResourceNames)
     {
-        Invoke-Expression ".\$ModuleName\NewResource.ps1 -ResourceName $resource"
+        $PlasterParams = @{
+         TemplatePath = "$PSScriptRoot\paket-files\devopsguys\plaster-powershell-dsc-scaffolding\plaster-powershell-dsc-resource";
+         DestinationPath = "$ModuleName\packages\DSCResources\"
+         project_name = $resource
+        }
+
+        Invoke-Plaster @PlasterParams
     }
+
+    Invoke-Expression "${ModuleName}/bootstrap.ps1"
 
 }
 
@@ -55,6 +57,23 @@ param(
     }
 
     Invoke-Plaster @PlasterParams
+
+}
+
+function Package-DSCModule
+{
+param
+(
+    [parameter(Mandatory = $true)]
+    [string]$version
+)
+
+if(-not (Test-Path ".paket\paket.exe"))
+{
+    $exception = "'.paket\paket.exe' not found. Are you in the module root?"
+}
+
+    Invoke-Expression ".paket\paket.exe pack output .\output version $version"
 
 }
 
