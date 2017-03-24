@@ -21,7 +21,7 @@ param(
     {
         $PlasterParams = @{
          TemplatePath = "$PSScriptRoot\paket-files\devopsguys\plaster-powershell-dsc-scaffolding\plaster-powershell-dsc-resource";
-         DestinationPath = "$ModuleName\packages\DSCResources\$resource"
+         DestinationPath = "$ModuleName\packages\$ModuleName\DSCResources\$resource"
          project_name = $resource
         }
         Write-Output "Scaffolding new DSC resource: $resource"
@@ -75,6 +75,7 @@ if(-not (Test-Path ".paket\paket.exe"))
     $exception = "'.paket\paket.exe' not found. Are you in the module root?"
 }
 
+    Invoke-Expression ".paket\paket.exe update"
     Invoke-Expression ".paket\paket.exe pack output .\output version $version"
 
 }
@@ -111,6 +112,7 @@ param (
         $env:AZURERM_SUBSCRIPTION = $prompt
      }
 
+     Invoke-Expression ".paket\paket.exe update"
      Invoke-Expression "bundle exec kitchen $action --log-level Debug"
 
 }
