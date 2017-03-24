@@ -14,22 +14,23 @@ param(
      project_name = $ModuleName
     }
 
+    Write-Output "Scaffolding new DSC module: $resource"
     Invoke-Plaster @PlasterParams -NoLogo
 
     foreach ($resource in $ResourceNames)
     {
         $PlasterParams = @{
          TemplatePath = "$PSScriptRoot\paket-files\devopsguys\plaster-powershell-dsc-scaffolding\plaster-powershell-dsc-resource";
-         DestinationPath = "$ModuleName\packages\DSCResources\"
+         DestinationPath = "$ModuleName\packages\DSCResources\$resource"
          project_name = $resource
         }
-
+        Write-Output "Scaffolding new DSC resource: $resource"
         Invoke-Plaster @PlasterParams -NoLogo
     }
 
-    cd $ModuleName
+    pushd $ModuleName
     Bootstrap-DSCModule
-
+    popd
 }
 
 function New-DSCResource
