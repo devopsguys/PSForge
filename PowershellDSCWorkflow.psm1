@@ -3,7 +3,7 @@ Import-Module Plaster
 function New-DSCModule
 {
 param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory=$True,Position=1)]
     [string]$ModuleName,
     [string[]]$ResourceNames
 )
@@ -14,7 +14,7 @@ param(
      project_name = $ModuleName
     }
 
-    Invoke-Plaster @PlasterParams
+    Invoke-Plaster @PlasterParams -NoLogo
 
     foreach ($resource in $ResourceNames)
     {
@@ -24,7 +24,7 @@ param(
          project_name = $resource
         }
 
-        Invoke-Plaster @PlasterParams
+        Invoke-Plaster @PlasterParams -NoLogo
     }
 
     Invoke-Expression "${ModuleName}/bootstrap.ps1"
@@ -34,7 +34,7 @@ param(
 function New-DSCResource
 {
 param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory=$True,Position=1)]
     [string]$ResourceName,
     [string]$ModuleName
 )
@@ -56,7 +56,7 @@ param(
         project_name = $ResourceName
     }
 
-    Invoke-Plaster @PlasterParams
+    Invoke-Plaster @PlasterParams -NoLogo
 
 }
 
@@ -64,7 +64,7 @@ function Package-DSCModule
 {
 param
 (
-    [parameter(Mandatory = $true)]
+    [parameter(Mandatory = $true,Position=1)]
     [string]$version
 )
 
