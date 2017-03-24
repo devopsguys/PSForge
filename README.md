@@ -1,3 +1,6 @@
+# Powershell Module Dependencies
+- Plaster
+
 # Installation
 
 1. Clone this repository
