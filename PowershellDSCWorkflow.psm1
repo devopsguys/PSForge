@@ -27,7 +27,8 @@ param(
         Invoke-Plaster @PlasterParams -NoLogo
     }
 
-    Invoke-Expression "${ModuleName}/bootstrap.ps1"
+    cd $ModuleName
+    Bootstrap-DSCModule
 
 }
 
@@ -75,6 +76,49 @@ if(-not (Test-Path ".paket\paket.exe"))
 
     Invoke-Expression ".paket\paket.exe pack output .\output version $version"
 
+}
+
+function Test-DSCModule
+{
+param (
+    [ValidateSet('create', 'converge', 'verify', 'test','destroy')]
+    [string] $action = 'verify'
+)
+
+    Write-Output "Action: $action"
+
+    $azureRMCredentials = "$env:home/.azure/credentials"
+
+    if( -not (Test-Path $azureRMCredentials))
+    {
+        Write-Output "Create an azure credentials file at $env:home/.azure/.credentials"
+        Write-Output "as described here: https://github.com/test-kitchen/kitchen-azurerm"
+        exit 1
+    }
+
+    if (-not (Test-Path env:AZURERM_SUBSCRIPTION)) {
+        Write-Output "The environment variable AZURERM_SUBSCRIPTION has not been set."
+        Write-Output ""
+        Write-Output "Setting the value of AZURERM_SUBSCRIPTION"
+
+        $firstLine,$remainingLines = Get-Content $azureRMCredentials
+
+        $defaultValue = $firstLine -replace '[[\]]',''
+        $prompt = Read-Host "Input your Azure Subscription ID [$($defaultValue)]"
+        $prompt = ($defaultValue,$prompt)[[bool]$prompt]
+
+        $env:AZURERM_SUBSCRIPTION = $prompt
+     }
+
+     Invoke-Expression "bundle exec kitchen $action --log-level Debug"
+
+}
+
+function Bootstrap-DSCModule
+{
+    & .\paket install
+    & gem install bundler
+    & bundle install
 }
 
 Export-ModuleMember -Function * -Alias *
