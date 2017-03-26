@@ -1,5 +1,36 @@
 Import-Module Plaster
 
+function Invoke-Paket
+{
+
+    $isWindows = Test-Path env:windir
+
+    if(-not (Test-Path ".\.paket\paket.exe"))
+    {
+        if($isWindows)
+        {
+            Invoke-Expression ".\.paket\paket.bootstrapper.exe"
+        }
+        else
+        {
+            Invoke-Expression "mono .\.paket\paket.bootstrapper.exe"
+        }
+    }
+
+    if($isWindows)
+    {
+        $paketBin = ".paket\paket.exe"
+    }
+    else
+    {
+        $paketBin = "mono .paket\paket.exe"
+    }
+
+    $commandArgs = $args -join " "
+
+    Invoke-Expression "$paketBin $commandArgs"
+}
+
 function New-DSCModule
 {
 param(
@@ -75,8 +106,8 @@ if(-not (Test-Path ".paket\paket.exe"))
     $exception = "'.paket\paket.exe' not found. Are you in the module root?"
 }
 
-    Invoke-Expression ".paket\paket.exe update"
-    Invoke-Expression ".paket\paket.exe pack output .\output version $version"
+    Invoke-Paket update
+    Invoke-Paket pack output .\output version $version
 
 }
 
@@ -120,14 +151,14 @@ param (
          $KitchenParams += " --log-level Debug"
      }
 
-     Invoke-Expression ".paket\paket.exe update"
+     Invoke-Paket update
      Invoke-Expression "bundle exec kitchen ${KitchenParams}"
 
 }
 
 function Bootstrap-DSCModule
 {
-    & .\paket install
+    Invoke-Paket install
     & gem install bundler
     & bundle install
 }
