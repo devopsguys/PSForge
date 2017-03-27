@@ -4,7 +4,7 @@ param(
 )
 
 
-Invoke-Expression ".\paket restore"
+Invoke-Expression ".\paket restore -f"
 
 Import-Module -Force .\PowershellDSCWorkflow.psm1
 Import-Module -Force .\packages\Plaster\Plaster.psm1
