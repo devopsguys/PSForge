@@ -122,13 +122,12 @@ param (
 
     Write-Output "Action: $Action"
 
-    $azureRMCredentials = "$env:home/.azure/credentials"
+    $azureRMCredentials = "$env:HOME/.azure/credentials"
 
     if( -not (Test-Path $azureRMCredentials))
     {
-        Write-Output "Create an azure credentials file at $env:home/.azure/.credentials"
-        Write-Output "as described here: https://github.com/test-kitchen/kitchen-azurerm"
-        exit 1
+        $exception = New-Object System.Exception ("Create an azure credentials file at $env:HOME/.azure/.credentials as described here: https://github.com/test-kitchen/kitchen-azurerm")
+        throw $exception
     }
 
     if (-not (Test-Path env:AZURERM_SUBSCRIPTION)) {
