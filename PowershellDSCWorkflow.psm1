@@ -14,6 +14,7 @@ function Invoke-Paket
         else
         {
             Invoke-Expression "mono .\.paket\paket.bootstrapper.exe"
+            Move-Item ".\paket.exe" ".\.paket\paket.exe"
         }
     }
 
