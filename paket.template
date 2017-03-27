@@ -1,0 +1,8 @@
+type file
+id PowershellDSCWorkflow
+version 1.0.0
+authors Edmund Dipple
+description
+    PowershellDSCWorkflow
+files
+    PowershellDSCWorkflow.* ==> .

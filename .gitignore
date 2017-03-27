@@ -2,3 +2,4 @@ paket-files/**/*
 packages/**/*
 .paket/paket.exe
 .paket/paket.targets
+*.nupkg
