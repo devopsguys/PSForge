@@ -102,11 +102,6 @@ param
     [string]$version
 )
 
-if(-not (Test-Path ".paket\paket.exe"))
-{
-    $exception = "'.paket\paket.exe' not found. Are you in the module root?"
-}
-
     Invoke-Paket update
     Invoke-Paket pack output .\output version $version
 
