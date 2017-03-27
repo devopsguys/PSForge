@@ -156,6 +156,7 @@ function BootstrapDSCModule
     Invoke-Paket install
     & gem install bundler
     & bundle install
+    & git init
 }
 
 Export-ModuleMember -function *-*
