@@ -1,5 +1,5 @@
 param(
-    [string] $packageVersion = "",
+    [string] $packageVersion = $env:PackageVersion,
     [bool] $fakeBuildRunner = $false
 )
 
