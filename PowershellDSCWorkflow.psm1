@@ -61,7 +61,7 @@ param(
     }
 
     pushd $ModuleName
-    Bootstrap-DSCModule
+    BootstrapDSCModule
     popd
 }
 
@@ -94,7 +94,7 @@ param(
 
 }
 
-function Package-DSCModule
+function Export-DSCModule
 {
 param
 (
@@ -151,11 +151,11 @@ param (
 
 }
 
-function Bootstrap-DSCModule
+function BootstrapDSCModule
 {
     Invoke-Paket install
     & gem install bundler
     & bundle install
 }
 
-Export-ModuleMember -Function * -Alias *
+Export-ModuleMember -function *-*
