@@ -10,3 +10,4 @@ Import-Module -Force .\PowershellDSCWorkflow.psm1
 Import-Module -Force .\packages\Plaster\Plaster.psm1
 
 Export-DSCModule -Version $packageVersion
+Remove-Item -Recurse .\packages
