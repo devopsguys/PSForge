@@ -3,9 +3,10 @@ param(
     [bool] $fakeBuildRunner = $false
 )
 
-Import-Module -Force .\PowershellDSCWorkflow.psm1
-Invoke-Paket restore
 
+Invoke-Expression ".\paket restore"
+
+Import-Module -Force .\PowershellDSCWorkflow.psm1
 Import-Module -Force .\packages\Plaster\Plaster.psm1
 
 Export-DSCModule -Version $packageVersion
