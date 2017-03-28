@@ -3,11 +3,50 @@ if((get-module | ? { $_.Name -eq "Plaster" }).Count -eq 0)
     Import-Module Plaster
 }
 
+function isAPaketFolder
+{
+param(
+    [Parameter(Mandatory=$True,Position=1)]
+    [string]$path
+)
+    return Test-Path "${path}\.paket"
+}
 
 function Invoke-Paket
 {
-
     $isWindows = Test-Path env:windir
+    $currentDirectory = (Get-Item .).FullName
+
+    $pathSeparator = "\"
+
+    if(-Not $isWindows)
+    {
+        $pathSeparator = "/"
+    }
+
+    $parentDirectories = ($currentDirectory -Split "\${pathSeparator}")
+
+    if(-Not (Test-Path ".\.paket"))
+    {
+        for($i = 1; $i -le $parentDirectories.count; $i++){
+            $lastIndex = $parentDirectories.count - $i
+            $directory = $parentDirectories[0..$lastIndex] -Join $pathSeparator
+            if(isAPaketFolder -path $directory)
+            {
+                Write-Output "Temporarily switching directory to ${directory}"
+                $popd = $True
+                pushd $directory
+                break
+            }
+
+            if($lastIndex -eq 0)
+            {
+                throw New-Object System.Exception ("No .paket directory found in ${currentDirectory} or any of its parent directories.")
+            }
+        }
+    }
+
+
 
     if(-not (Test-Path ".\.paket\paket.exe"))
     {
@@ -34,6 +73,11 @@ function Invoke-Paket
     $commandArgs = $args -join " "
 
     Invoke-Expression "$paketBin $commandArgs"
+
+    if($popd){
+        popd
+    }
+
 }
 
 function New-DSCModule
@@ -84,8 +128,7 @@ param(
 
     if(-not (Test-Path "packages\${ModuleName}"))
     {
-        $exception = New-Object System.Exception ("Directory 'packages\${ModuleName}' not found. Are you in the module root?")
-        throw $exception
+        throw New-Object System.Exception ("Directory 'packages\${ModuleName}' not found. Are you in the module root?")
     }
 
     $PlasterParams = @{
@@ -125,8 +168,7 @@ param (
 
     if( -not (Test-Path $azureRMCredentials))
     {
-        $exception = New-Object System.Exception ("Create an azure credentials file at $env:HOME/.azure/.credentials as described here: https://github.com/test-kitchen/kitchen-azurerm")
-        throw $exception
+        throw New-Object System.Exception ("Create an azure credentials file at $env:HOME/.azure/.credentials as described here: https://github.com/test-kitchen/kitchen-azurerm")
     }
 
     if (-not (Test-Path env:AZURERM_SUBSCRIPTION)) {
