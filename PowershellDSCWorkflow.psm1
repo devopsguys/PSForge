@@ -97,18 +97,13 @@ param(
     Write-Output "Scaffolding new DSC module: $resource"
     Invoke-Plaster @PlasterParams -NoLogo
 
+    pushd $ModuleName
+
     foreach ($resource in $ResourceNames)
     {
-        $PlasterParams = @{
-         TemplatePath = "$PSScriptRoot\paket-files\devopsguys\plaster-powershell-dsc-scaffolding\plaster-powershell-dsc-resource";
-         DestinationPath = "$ModuleName\packages\$ModuleName\DSCResources\$resource"
-         project_name = $resource
-        }
-        Write-Output "Scaffolding new DSC resource: $resource"
-        Invoke-Plaster @PlasterParams -NoLogo
+        New-DSCResource -ResourceName $resource
     }
 
-    pushd $ModuleName
     BootstrapDSCModule
     popd
 }
@@ -120,6 +115,8 @@ param(
     [string]$ResourceName,
     [string]$ModuleName
 )
+
+    Write-Output "Scaffolding new DSC resource: $resource"
 
     if(!$ModuleName)
     {
@@ -136,6 +133,13 @@ param(
         DestinationPath = "packages\${ModuleName}\DSCResources\${ResourceName}"
         project_name = $ResourceName
     }
+
+    Import-LocalizedData -BaseDirectory "packages\${ModuleName}" -FileName "${ModuleName}.psd1" -BindingVariable metadata
+
+    $PlasterParams.company = $metadata.CompanyName
+    $PlasterParams.project_short_description = $ModuleName
+    $PlasterParams.full_name = $metadata.Author
+    $PlasterParams.version = "1.0.0"
 
     Invoke-Plaster @PlasterParams -NoLogo
 
