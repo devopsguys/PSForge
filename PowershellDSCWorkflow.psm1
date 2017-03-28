@@ -3,6 +3,11 @@ if((get-module | ? { $_.Name -eq "Plaster" }).Count -eq 0)
     Import-Module Plaster
 }
 
+function runningOnWindows
+{
+    return (Test-Path env:windir)
+}
+
 function isAPaketFolder
 {
 param(
@@ -14,12 +19,12 @@ param(
 
 function Invoke-Paket
 {
-    $isWindows = Test-Path env:windir
+
     $currentDirectory = (Get-Item .).FullName
 
     $pathSeparator = "\"
 
-    if(-Not $isWindows)
+    if(-Not (runningOnWindows))
     {
         $pathSeparator = "/"
     }
@@ -50,7 +55,7 @@ function Invoke-Paket
 
     if(-not (Test-Path ".\.paket\paket.exe"))
     {
-        if($isWindows)
+        if(runningOnWindows)
         {
             Invoke-Expression ".\.paket\paket.bootstrapper.exe"
         }
@@ -61,7 +66,7 @@ function Invoke-Paket
         }
     }
 
-    if($isWindows)
+    if(runningOnWindows)
     {
         $paketBin = ".paket\paket.exe"
     }
@@ -204,9 +209,11 @@ param (
 function BootstrapDSCModule
 {
     Invoke-Paket install
-    & gem install bundler
-    & bundle install
-    & git init
+    if(-Not (Get-Command "bundler" -ErrorAction SilentlyContinue)){
+        Invoke-Expression "gem install bundler"
+    }
+    Invoke-Expression "bundle install"
+    Invoke-Expression "git init"
 }
 
 Export-ModuleMember -function *-*
