@@ -51,7 +51,7 @@ function Invoke-Paket
         }
     }
 
-
+    GeneratePaketFiles
 
     if(-not (Test-Path ".\.paket\paket.exe"))
     {
@@ -78,6 +78,8 @@ function Invoke-Paket
     $commandArgs = $args -join " "
 
     Invoke-Expression "$paketBin $commandArgs"
+
+    ClearPaketFiles
 
     if($popd){
         popd
@@ -128,18 +130,18 @@ param(
         $ModuleName = (Get-Item -Path ".\" -Verbose).BaseName
     }
 
-    if(-not (Test-Path "packages\${ModuleName}"))
+    if(-not (Test-Path "${ModuleName}.psd1"))
     {
-        throw New-Object System.Exception ("Directory 'packages\${ModuleName}' not found. Are you in the module root?")
+        throw New-Object System.Exception ("'${ModuleName}.psd1' not found. Are you in the module root?")
     }
 
     $PlasterParams = @{
         TemplatePath = "$PSScriptRoot\paket-files\devopsguys\plaster-powershell-dsc-scaffolding\plaster-powershell-dsc-resource";
-        DestinationPath = "packages\${ModuleName}\DSCResources\${ResourceName}"
+        DestinationPath = "DSCResources\${ResourceName}"
         project_name = $ResourceName
     }
 
-    Import-LocalizedData -BaseDirectory "packages\${ModuleName}" -FileName "${ModuleName}.psd1" -BindingVariable metadata
+    Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable metadata
 
     $PlasterParams.company = $metadata.CompanyName
     $PlasterParams.project_short_description = $ModuleName
@@ -214,6 +216,54 @@ function BootstrapDSCModule
     }
     Invoke-Expression "bundle install"
     Invoke-Expression "git init"
+
+}
+
+function ClearPaketFiles
+{
+    Remove-Item paket.dependencies -ErrorAction SilentlyContinue
+    Remove-Item paket.template -ErrorAction SilentlyContinue
+}
+
+function GeneratePaketFiles
+{
+    $ModuleName = (Get-Item -Path ".\" -Verbose).BaseName
+    Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable moduleManifest
+    Import-LocalizedData -BaseDirectory "." -FileName "dependencies.psd1" -BindingVariable dependenciesManifest
+
+    ClearPaketFiles
+
+    New-Item paket.dependencies
+    New-Item paket.template
+
+    ForEach($nugetFeed in $dependenciesManifest.NugetFeeds)
+    {
+        "source $nugetFeed" | Out-File paket.dependencies -Append -Encoding utf8
+    }
+
+    ForEach($nugetPackage in $dependenciesManifest.NugetPackages)
+    {
+        "nuget $($nugetPackage.Name) == $($nugetPackage.Version)" | Out-File paket.dependencies -Append -Encoding utf8
+    }
+
+@"
+type file
+id ${ModuleName}
+version $($moduleManifest.ModuleVersion)
+authors $($moduleManifest.Author)
+description
+    $($moduleManifest.Description)
+files
+   ${ModuleName}.psd1 ==> .
+   DSCResources ==> DSCResources
+dependencies
+"@ | Out-File  paket.template -Append -Encoding utf8
+
+    ForEach($nugetPackage in $dependenciesManifest.NugetPackages)
+    {
+        "    $($nugetPackage.Name) == LOCKEDVERSION" | Out-File paket.template -Append -Encoding utf8
+    }
+
 }
 
 Export-ModuleMember -function *-*
