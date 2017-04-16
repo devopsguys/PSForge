@@ -6,10 +6,10 @@ Author = 'Edmund Dipple'
 CompanyName = 'DevOpsGuys'
 Copyright = '(c) 2017 DevOpsGuys. All rights reserved.'
 Description = 'Cmdlets to aid in authoring DSC modules and resources'
-FunctionsToExport = @()
-CmdletsToExport = @()
+FunctionsToExport = '*'
+CmdletsToExport = '*'
 VariablesToExport = '*'
-AliasesToExport = @()
+AliasesToExport = '*'
 PrivateData = @{
     PSData = @{
     } # End of PSData hashtable
