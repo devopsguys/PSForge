@@ -233,8 +233,8 @@ function GeneratePaketFiles
 
     ClearPaketFiles
 
-    New-Item paket.dependencies
-    New-Item paket.template
+    New-Item paket.dependencies | Out-Null
+    New-Item paket.template | Out-Null
 
     ForEach($nugetFeed in $dependenciesManifest.NugetFeeds)
     {
