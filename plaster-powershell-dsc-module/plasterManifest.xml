@@ -52,12 +52,12 @@
         </modify>
         <file source='_dummy'  destination='DSCResources\.dummy'/>
         <file source='dependencies.psd1'  destination='dependencies.psd1'/>
-        <message>
+        <!-- <message>
 
             =============================================================================================
             Ensure you have an azurerm credentials file set up in $env:HOME\.azure\credentials
             =============================================================================================
 
-        </message>
+        </message> -->
     </content>
 </plasterManifest>

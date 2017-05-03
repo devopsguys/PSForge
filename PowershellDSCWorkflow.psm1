@@ -92,17 +92,29 @@ function New-DSCModule
 param(
     [Parameter(Mandatory=$True,Position=1)]
     [string]$ModuleName,
-    [string[]]$ResourceNames
+    [string[]]$ResourceNames,
+    [string]$Version="1.0.0",
+    [string]$Description=""
 )
+
+    CheckUserConfig
+
+    $config = Get-DSCModuleGlobalConfig
+
+    $Activity = "Bootstrapping Powershell DSC Module"
 
     $PlasterParams = @{
      TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-module";
      DestinationPath = $ModuleName
      project_name = $ModuleName
+     version = $Version
+     full_name = $config.username
+     company = $config.company
+     project_short_description = $Description
     }
 
-    Write-Output "Scaffolding new DSC module: $resource"
-    Invoke-Plaster @PlasterParams -NoLogo
+    Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 10
+    Invoke-Plaster @PlasterParams -NoLogo *> $null
 
     pushd $ModuleName
 
@@ -122,6 +134,8 @@ param(
     [string]$ResourceName,
     [string]$ModuleName
 )
+
+    CheckUserConfig
 
     Write-Output "Scaffolding new DSC resource: $resource"
 
@@ -148,7 +162,7 @@ param(
     $PlasterParams.full_name = $metadata.Author
     $PlasterParams.version = "1.0.0"
 
-    Invoke-Plaster @PlasterParams -NoLogo
+    Invoke-Plaster @PlasterParams -NoLogo 2>&1 | Out-Null
 
 }
 
@@ -224,7 +238,9 @@ function Get-DSCModuleGlobalConfig
 function Set-DSCModuleGlobalConfig
 {
     param (
+        [parameter(Mandatory = $true,Position=1)]
         [string] $Key,
+        [parameter(Mandatory = $true,Position=2)]
         [string] $Value
     )
 
@@ -236,14 +252,43 @@ function Set-DSCModuleGlobalConfig
 
 }
 
+function CheckUserConfig
+{
+    $config = Get-DSCModuleGlobalConfig
+
+    if(!$config.username)
+    {
+        $defaultValue = $ENV:USERNAME
+        $username = Read-Host "What is your username? [$($defaultValue)]"
+        $username = ($defaultValue,$username)[[bool]$username]
+        Set-DSCModuleGlobalConfig "username" "$username"
+    }
+
+    if(!$config.company)
+    {
+        $defaultValue = "None"
+        $company = Read-Host "What is your company name? [$($defaultValue)]"
+        $company = ($defaultValue,$company)[[bool]$company]
+        Set-DSCModuleGlobalConfig "company" "$company"
+    }
+}
+
 function BootstrapDSCModule
 {
-    Invoke-Paket install
+    $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName
+    $Activity = "Bootstrapping Powershell DSC Module"
+    Write-Progress -Activity $Activity -Status "Installing Paket" -percentComplete 20
+    Invoke-Paket install | Out-Null
+    Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies" -percentComplete 40
     if(-Not (Get-Command "bundler" -ErrorAction SilentlyContinue)){
-        Invoke-Expression "gem install bundler"
+        Invoke-Expression "gem install bundler" | Out-Null
     }
-    Invoke-Expression "bundle install"
-    Invoke-Expression "git init"
+    Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies" -percentComplete 60
+    Invoke-Expression "bundle install" | Out-Null
+    Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 80
+    Invoke-Expression "git init" | Out-Null
+    Write-Progress -Activity $Activity -percentComplete 100
+    Write-Output "Module bootstrapped at $currentDirectory"
 
 }
 
