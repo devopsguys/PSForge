@@ -208,6 +208,34 @@ param (
 
 }
 
+function Get-DSCModuleGlobalConfig
+{
+    $configFile = "$env:HOME/DSCWorkflowConfig.json"
+
+    if(-Not (Test-Path $configFile))
+    {
+        return @{}
+    }
+
+    return Get-Content -Raw -Path $configFile | ConvertFrom-Json
+
+}
+
+function Set-DSCModuleGlobalConfig
+{
+    param (
+        [string] $Key,
+        [string] $Value
+    )
+
+    $configFile = "$env:HOME/DSCWorkflowConfig.json"
+    $json = Get-DSCModuleGlobalConfig
+    $Key = $Key.ToLower()
+    $json | Add-Member NoteProperty $Key $Value -Force
+    $json | ConvertTo-Json -depth 100 | Out-File $configFile -encoding utf8
+
+}
+
 function BootstrapDSCModule
 {
     Invoke-Paket install
