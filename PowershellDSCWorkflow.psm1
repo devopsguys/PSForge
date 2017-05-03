@@ -162,7 +162,8 @@ param(
     $PlasterParams.full_name = $metadata.Author
     $PlasterParams.version = "1.0.0"
 
-    Invoke-Plaster @PlasterParams -NoLogo 2>&1 | Out-Null
+    Invoke-Plaster @PlasterParams -NoLogo *> $null
+    Write-Output "New resource has been created at .\DSCResources\${ResourceName}"
 
 }
 
