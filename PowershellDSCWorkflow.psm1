@@ -96,7 +96,7 @@ param(
 )
 
     $PlasterParams = @{
-     TemplatePath = "$PSScriptRoot\paket-files\devopsguys\plaster-powershell-dsc-scaffolding\plaster-powershell-dsc-module";
+     TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-module";
      DestinationPath = $ModuleName
      project_name = $ModuleName
     }
@@ -136,7 +136,7 @@ param(
     }
 
     $PlasterParams = @{
-        TemplatePath = "$PSScriptRoot\paket-files\devopsguys\plaster-powershell-dsc-scaffolding\plaster-powershell-dsc-resource";
+        TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-resource";
         DestinationPath = "DSCResources\${ResourceName}"
         project_name = $ResourceName
     }

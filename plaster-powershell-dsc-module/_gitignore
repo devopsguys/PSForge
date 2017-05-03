@@ -1,0 +1,10 @@
+packages/*
+
+vendor/
+.bundle/
+.kitchen/
+.kitchen.local.yml
+.paket/paket.exe
+*.nupkg
+
+.DS_Store

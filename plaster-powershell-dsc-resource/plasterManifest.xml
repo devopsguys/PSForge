@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>PowershellDSCResource</name>
+    <id>14f99429-b25c-45e0-be57-e43666652ab5</id>
+    <version>1.0.0</version>
+    <title>PowershellDSCResource</title>
+    <description></description>
+    <author></author>
+    <tags></tags>
+  </metadata>
+  <parameters>
+      <parameter name='project_name' type='text' default='ExamplePowershellResource' prompt='Enter the name of the Powershell DSC resource'/>
+      <parameter name='full_name' type='user-fullname' prompt='Enter your name'/>
+      <parameter name='company' type='text' default='DevOpsGuys' prompt='Enter your company name'/>
+      <parameter name='project_short_description' type='text' default="${PLASTER_PARAM_project_name}" prompt='Enter a description for the module'/>
+      <parameter name='version' type='text' default='1.0.0' prompt='Enter the initial version number for the module'/>
+  </parameters>
+  <content>
+      <newModuleManifest destination='${PLASTER_PARAM_project_name}.psd1'
+                         moduleVersion='$PLASTER_PARAM_version'
+                         rootModule='${PLASTER_PARAM_project_name}.schema.psm1'
+                         author='$PLASTER_PARAM_full_name'
+                         description='$PLASTER_PARAM_project_short_description'
+                         companyName='$PLASTER_PARAM_company'
+                         encoding='UTF8-NoBOM'/>
+      <templateFile source='resource.schema.psm1'  destination='${PLASTER_PARAM_project_name}.schema.psm1'/>
+  </content>
+</plasterManifest>

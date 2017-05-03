@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+    schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+    <metadata>
+        <name>PowershellDSCModule</name>
+        <id>76d2fef8-679c-44d8-8d99-1d35c77f9c0d</id>
+        <version>1.0.0</version>
+        <title>PowershellDSCModule</title>
+        <description></description>
+        <author>Edmund Dipple</author>
+        <tags></tags>
+    </metadata>
+    <parameters>
+        <parameter name='project_name' type='text' default='ExamplePowershellModule' prompt='Enter the name of the Powershell DSC module'/>
+        <parameter name='full_name' type='user-fullname' prompt='Enter your name'/>
+        <parameter name='company' type='text' default='DevOpsGuys' prompt='Enter your company name'/>
+        <parameter name='project_short_description' type='text' default="${PLASTER_PARAM_project_name}" prompt='Enter a description for the module'/>
+        <parameter name='version' type='text' default='1.0.0' prompt='Enter the initial version number for the module'/>
+    </parameters>
+    <content>
+        <message>
+            Scaffold a PowerShell Module with the files required to run Pester tests, test in Azure and publish to the PSGallery.
+        </message>
+
+        <newModuleManifest destination='${PLASTER_PARAM_project_name}.psd1'
+                           moduleVersion='$PLASTER_PARAM_version'
+                           rootModule='${PLASTER_PARAM_project_name}.psm1'
+                           author='$PLASTER_PARAM_full_name'
+                           description='$PLASTER_PARAM_project_short_description'
+                           companyName='$PLASTER_PARAM_company'
+                           encoding='UTF8-NoBOM'/>
+        <file source='Gemfile'  destination='Gemfile'/>
+        <file source='paket'  destination='paket'/>
+        <file source='paket.bat'  destination='paket.bat'/>
+        <file source='.paket\**' destination='.paket'/>
+        <templateFile source='Examples\dsc_configuration.ps1' destination='Examples\dsc_configuration.ps1'/>
+        <file source='test/Default.Tests.ps1'
+            destination='test/integration/default/${PLASTER_PARAM_project_name}.Tests.ps1'/>
+        <templateFile source='paket.template'  destination='paket.template'/>
+        <templateFile source='_gitignore'  destination='.gitignore'/>
+        <templateFile source='_kitchen.yml'  destination='.kitchen.yml'/>
+        <modify path='.kitchen.yml'>
+            <replace>
+               <original><![CDATA[<!]]></original>
+               <substitute><![CDATA[<%]]></substitute>
+           </replace>
+           <replace>
+              <original><![CDATA[!>]]></original>
+              <substitute><![CDATA[%>]]></substitute>
+          </replace>
+        </modify>
+        <file source='_dummy'  destination='DSCResources\.dummy'/>
+        <file source='dependencies.psd1'  destination='dependencies.psd1'/>
+        <message>
+
+            =============================================================================================
+            Ensure you have an azurerm credentials file set up in $env:HOME\.azure\credentials
+            =============================================================================================
+
+        </message>
+    </content>
+</plasterManifest>

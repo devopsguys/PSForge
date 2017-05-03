@@ -1,0 +1,26 @@
+---
+driver:
+  name: azurerm
+
+provisioner:
+  name: dsc
+  dsc_local_configuration_manager_version: wmf4
+  modules_path: packages
+
+verifier:
+  name: pester
+
+driver_config:
+  subscription_id: <!= ENV['AZURERM_SUBSCRIPTION'] !>
+  location: 'West Europe'
+  machine_size: 'Standard_D1'
+
+platforms:
+  - name: win2012r2
+    driver_config:
+      image_urn: MicrosoftWindowsServer:WindowsServer:2012-R2-Datacenter:latest
+    transport:
+        name: winrm
+
+suites:
+  - name: default
