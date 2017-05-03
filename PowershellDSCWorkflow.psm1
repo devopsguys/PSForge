@@ -243,7 +243,7 @@ function GeneratePaketFiles
 
     ForEach($nugetPackage in $dependenciesManifest.NugetPackages)
     {
-        "nuget $($nugetPackage.Name) == $($nugetPackage.Version)" | Out-File paket.dependencies -Append -Encoding utf8
+        "nuget $nugetPackage" | Out-File paket.dependencies -Append -Encoding utf8
     }
 
 @"
@@ -261,7 +261,8 @@ dependencies
 
     ForEach($nugetPackage in $dependenciesManifest.NugetPackages)
     {
-        "    $($nugetPackage.Name) == LOCKEDVERSION" | Out-File paket.template -Append -Encoding utf8
+
+        "    $(($nugetPackage -Split " ")[0]) == LOCKEDVERSION" | Out-File paket.template -Append -Encoding utf8
     }
 
 }
