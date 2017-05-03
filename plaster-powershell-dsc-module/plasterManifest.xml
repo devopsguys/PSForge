@@ -39,6 +39,7 @@
         <templateFile source='paket.template'  destination='paket.template'/>
         <templateFile source='_gitignore'  destination='.gitignore'/>
         <templateFile source='_kitchen.yml'  destination='.kitchen.yml'/>
+        <templateFile source='README.md'  destination='README.md'/>
         <modify path='.kitchen.yml'>
             <replace>
                <original><![CDATA[<!]]></original>
