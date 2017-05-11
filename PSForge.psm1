@@ -184,7 +184,7 @@ function Export-DSCModule
 param
 (
     [parameter(Mandatory = $true,Position=1)]
-    [string]$version
+    [string]$Version
 )
 
     BootstrapDSCModule
