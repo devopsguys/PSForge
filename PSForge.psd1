@@ -1,5 +1,5 @@
 @{
-RootModule = 'PowershellDSCWorkflow.psm1'
+RootModule = 'PSForge.psm1'
 ModuleVersion = '1.0.0'
 GUID = '1804f94e-69ec-4f43-ae0c-68c237bc22ff'
 Author = 'Edmund Dipple'
