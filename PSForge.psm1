@@ -19,6 +19,10 @@ param(
 
 function Invoke-Paket
 {
+    param
+    (
+        [switch]$NoBootStrap
+    )
 
     $currentDirectory = (Get-Item .).FullName
 
@@ -49,6 +53,10 @@ function Invoke-Paket
                 throw New-Object System.Exception ("No .paket directory found in ${currentDirectory} or any of its parent directories.")
             }
         }
+    }
+
+    if(-Not $NoBootstrap){
+        BootstrapDSCModule
     }
 
     GeneratePaketFiles
@@ -117,6 +125,7 @@ param(
     Invoke-Plaster @PlasterParams -NoLogo *> $null
 
     pushd $ModuleName
+    $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName
 
     foreach ($resource in $ResourceNames)
     {
@@ -124,6 +133,7 @@ param(
     }
 
     BootstrapDSCModule
+    Write-Output "Module bootstrapped at $currentDirectory"
     popd
 }
 
@@ -148,6 +158,8 @@ param(
     {
         throw New-Object System.Exception ("'${ModuleName}.psd1' not found. Are you in the module root?")
     }
+
+    BootstrapDSCModule
 
     $PlasterParams = @{
         TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-resource";
@@ -175,6 +187,7 @@ param
     [string]$version
 )
 
+    BootstrapDSCModule
     Invoke-Paket update
     Invoke-Paket pack output .\output version $version
 
@@ -189,6 +202,8 @@ param (
 )
 
     Write-Output "Action: $Action"
+
+    BootstrapDSCModule
 
     $azureRMCredentials = "$env:HOME/.azure/credentials"
 
@@ -276,20 +291,31 @@ function CheckUserConfig
 
 function BootstrapDSCModule
 {
-    $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName
+
     $Activity = "Bootstrapping Powershell DSC Module"
-    Write-Progress -Activity $Activity -Status "Installing Paket" -percentComplete 20
-    Invoke-Paket install | Out-Null
-    Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies" -percentComplete 40
+
+    if(!(Test-Path ".\.paket\paket.exe")){
+        Write-Progress -Activity $Activity -Status "Installing Paket" -percentComplete 20
+        Invoke-Paket install -NoBootstrap | Out-Null
+    }
+
     if(-Not (Get-Command "bundler" -ErrorAction SilentlyContinue)){
+        Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (bundler)" -percentComplete 40
         Invoke-Expression "gem install bundler" | Out-Null
     }
-    Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies" -percentComplete 60
-    Invoke-Expression "bundle install" | Out-Null
-    Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 80
-    Invoke-Expression "git init" | Out-Null
-    Write-Progress -Activity $Activity -percentComplete 100
-    Write-Output "Module bootstrapped at $currentDirectory"
+
+    $bundle = Start-Process -FilePath "cmd" -ArgumentList "/c bundle check" -Wait -NoNewWindow -RedirectStandardOutput null -PassThru
+    if($bundle.Exitcode -ne 0){
+        Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (gems)" -percentComplete 60
+        Invoke-Expression "bundle install" | Out-Null
+    }
+
+    if(!(Test-Path ".\.git")){
+        Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 80
+        Invoke-Expression "git init" | Out-Null
+    }
+
+    Write-Progress -Activity $Activity -percentComplete 100 -Completed
 
 }
 
