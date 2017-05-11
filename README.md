@@ -1,16 +1,20 @@
 # PSForge
 
+*Compatible with Windows, OSX and Linux*
+
 ## What is it for?
+
+Our goal is to refactor our monolithic Powershell DSC configurations into a series of smaller, reusable modules that can be tested in isolation. The root configuration for each project should mostly just contain references to custom DSC modules we've created.
+
+In order to achieve this goal, PSForge was created to make it easier to set up a blank module, and resolve dependencies that each module may have - in addition to pulling the custom modules into the root project.
 
 ### Setting up a new DSC Module and associated DSC resources
 
-We have a requirement that the modules be tested on environments in Azure with Pester tests, so we needed a way of scaffolding a new DSC module that includes sensible defaults for Test Kitchen configuration files.
+We have a requirement that the modules be tested on environments in Azure with Pester tests, so we needed a way of scaffolding a new DSC module that includes sensible defaults for Test Kitchen configuration files. Under the hood, PSForge makes use of the Plaster project.
 
 ### Fetching transitive dependencies for deployment
 
-Ideally we want our root Powershell DSC configurations to simply reference one or more DSC modules that we have created from refactored code. Each of these modules should be testable in isolation, in their own Git repositories.
-
-We needed a way of downloading transitive dependencies (ie. dependencies of dependencies) into a single folder so that the dependencies can be packaged via Nuget.
+We needed a way of downloading transitive dependencies (ie. dependencies of dependencies) into a single folder so that the dependencies can be packaged via Nuget. Paket was chosen for this task, as it does an excellent job of handling transitive dependencies.
 
 ## How do you use it?
 
@@ -66,7 +70,6 @@ NugetPackages = @(
 )
 
 }
-
 ```
 
 ## Exporting a Package
