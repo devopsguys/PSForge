@@ -304,7 +304,8 @@ function BootstrapDSCModule
         Invoke-Expression "gem install bundler" | Out-Null
     }
 
-    $bundle = Start-Process -FilePath "cmd" -ArgumentList "/c bundle check" -Wait -NoNewWindow -RedirectStandardOutput null -PassThru
+    $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput null -PassThru
+    rm null
     if($bundle.Exitcode -ne 0){
         Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (gems)" -percentComplete 60
         Invoke-Expression "bundle install" | Out-Null
