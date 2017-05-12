@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Package</id>
-    <version>1.0.1</version>
+    <id>PSForge</id>
+    <version>1.0.3</version>
     <authors>Edmund Dipple</authors>
     <owners>DevOpsGuys</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

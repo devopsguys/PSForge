@@ -1,6 +1,6 @@
 @{
 RootModule = 'PSForge.psm1'
-ModuleVersion = '1.0.1'
+ModuleVersion = '1.0.3'
 GUID = '1804f94e-69ec-4f43-ae0c-68c237bc22ff'
 Author = 'Edmund Dipple'
 CompanyName = 'DevOpsGuys'
@@ -10,6 +10,7 @@ FunctionsToExport = '*'
 CmdletsToExport = '*'
 VariablesToExport = '*'
 AliasesToExport = '*'
+RequiredModules = @(@{ModuleName = 'Plaster'; ModuleVersion = '1.0.1'; })
 PrivateData = @{
     PSData = @{
     } # End of PSData hashtable
