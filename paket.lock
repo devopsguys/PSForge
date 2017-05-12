@@ -1,6 +1,0 @@
-NUGET
-  remote: https://powershellgallery.com/api/v2
-    Plaster (1.0.1)
-GITHUB
-  remote: devopsguys/plaster-powershell-dsc-scaffolding
-    FULLPROJECT (8f62ea865ecf1002c36f4016b2342c220c7a47f4)
