@@ -196,7 +196,7 @@ param
 function Test-DSCModule
 {
 param (
-    [ValidateSet('create', 'converge', 'verify', 'test','destroy')]
+    [ValidateSet('create', 'converge', 'verify', 'test','destroy','login')]
     [string] $Action = 'verify',
     [switch] $Debug
 )
