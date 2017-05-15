@@ -32,7 +32,7 @@
         <file source='Gemfile'  destination='Gemfile'/>
         <file source='paket'  destination='paket'/>
         <file source='paket.bat'  destination='paket.bat'/>
-        <file source='.paket\**' destination='.paket'/>
+        <file source='_paket\**' destination='.paket'/>
         <templateFile source='Examples\dsc_configuration.ps1' destination='Examples\dsc_configuration.ps1'/>
         <file source='test/Default.Tests.ps1'
             destination='test/integration/default/${PLASTER_PARAM_project_name}.Tests.ps1'/>
