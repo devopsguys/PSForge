@@ -3,9 +3,81 @@ if((get-module | ? { $_.Name -eq "Plaster" }).Count -eq 0)
     Import-Module Plaster
 }
 
-function runningOnWindows
+function getOSPlatform
 {
-    return (Test-Path env:windir)
+
+    $osPlatform = ([Environment]::OSVersion).Platform
+
+    if($osPlatform -like "Win*")
+    {
+        return "windows"
+    }
+
+    if($osPlatform -eq "Unix")
+    {
+        $uname = Invoke-Expression "uname"
+        if($uname -eq "Darwin")
+        {
+            return "mac"
+        }
+
+        return ($uname).toLower()
+    }
+
+    return "unknown"
+
+}
+
+function isWindows
+{
+    return ((getOSPlatform) -eq "windows")
+}
+
+function isUnix
+{
+    return (@("linux","mac","freebsd","sunos","openbsd")).contains((getOSPlatform))
+}
+
+function isOnPath
+{
+    param(
+        [Parameter(Mandatory=$True,Position=1)]
+        [string]$cmd
+    )
+
+    $bin = gcm -ErrorAction "SilentlyContinue" $cmd
+    return ($bin -ne $null)
+}
+
+
+function checkDependencies
+{
+    if(isUnix)
+    {
+        if(-not (isOnPath "mono"))
+        {
+            throw New-Object System.Exception ("PSForge has a dependency on 'mono' on Linux and MacOS - please install mono via the system package manager.")
+        }
+    }
+
+    if(-not (isOnPath "ruby"))
+    {
+        throw New-Object System.Exception ("PSForge has a dependency on 'ruby' 2.3 or higher - please install ruby via the system package manager.")
+    }
+
+    if(-not (isOnPath "git"))
+    {
+        throw New-Object System.Exception ("PSForge has a dependency on 'git' - please install git via the system package manager.")
+    }
+
+    [string]$longRubyVersion = (Invoke-Expression "ruby --version").split(' ')[1]
+    [double]$shortRubyVersion = ($longRubyVersion.split('.')[0,1]) -join '.'
+
+    if($shortRubyVersion -lt 2.3)
+    {
+        throw New-Object System.Exception ("PSForge has a dependency on 'ruby' 2.3 or higher. Current version of ruby is ${longRubyVersion} - please update ruby via the system package manager.")
+    }
+
 }
 
 function isAPaketFolder
@@ -28,7 +100,7 @@ function Invoke-Paket
 
     $pathSeparator = "\"
 
-    if(-Not (runningOnWindows))
+    if(-Not (isWindows))
     {
         $pathSeparator = "/"
     }
@@ -63,7 +135,7 @@ function Invoke-Paket
 
     if(-not (Test-Path ".\.paket\paket.exe"))
     {
-        if(runningOnWindows)
+        if(isWindows)
         {
             Invoke-Expression ".\.paket\paket.bootstrapper.exe"
         }
@@ -74,7 +146,7 @@ function Invoke-Paket
         }
     }
 
-    if(runningOnWindows)
+    if(isWindows)
     {
         $paketBin = ".paket\paket.exe"
     }
@@ -294,18 +366,20 @@ function BootstrapDSCModule
 
     $Activity = "Bootstrapping Powershell DSC Module"
 
+    checkDependencies
+
     if(!(Test-Path ".\.paket\paket.exe")){
         Write-Progress -Activity $Activity -Status "Installing Paket" -percentComplete 20
         Invoke-Paket install -NoBootstrap | Out-Null
     }
 
-    if(-Not (Get-Command "bundler" -ErrorAction SilentlyContinue)){
+    if(-not (isOnPath "bundler")))
         Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (bundler)" -percentComplete 40
         Invoke-Expression "gem install bundler" | Out-Null
     }
 
-    $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput null -PassThru
-    rm null
+    $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput stdout -PassThru
+    rm stdout
     if($bundle.Exitcode -ne 0){
         Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (gems)" -percentComplete 60
         Invoke-Expression "bundle install" | Out-Null
