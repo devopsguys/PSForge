@@ -31,7 +31,7 @@ Once the module is created, PSForge will bootstrap your development environment 
 
 1. Clone this repository
 2. Install [Ruby 2.3+](https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.4.tar.gz)
-3. Install [Plaster](https://github.com/PowerShell/Plasters)
+3. Install [Plaster](https://github.com/PowerShell/Plaster)
 4. Set up your Azure credentials file and Service Principal
 3. Run `Import-Module .\PSForge\PSForge.psm1`
 
