@@ -1,4 +1,4 @@
-if((get-module | ? { $_.Name -eq "Plaster" }).Count -eq 0)
+if((get-module | Where-Object { $_.Name -eq "Plaster" }).Count -eq 0)
 {
     Import-Module Plaster
 }
@@ -45,7 +45,7 @@ function isOnPath
         [string]$cmd
     )
 
-    $bin = gcm -ErrorAction "SilentlyContinue" $cmd
+    $bin = Get-Command -ErrorAction "SilentlyContinue" $cmd
     return ($bin -ne $null)
 }
 
@@ -116,7 +116,7 @@ function Invoke-Paket
             {
                 Write-Output "Temporarily switching directory to ${directory}"
                 $popd = $True
-                pushd $directory
+                Push-Location $directory
                 break
             }
 
@@ -162,7 +162,7 @@ function Invoke-Paket
     ClearPaketFiles
 
     if($popd){
-        popd
+        Pop-Location
     }
 
 }
@@ -196,7 +196,7 @@ param(
     Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 10
     Invoke-Plaster @PlasterParams -NoLogo *> $null
 
-    pushd $ModuleName
+    Push-Location $ModuleName
     $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName
 
     foreach ($resource in $ResourceNames)
@@ -206,7 +206,7 @@ param(
 
     BootstrapDSCModule
     Write-Output "Module bootstrapped at $currentDirectory"
-    popd
+    Pop-Location
 }
 
 function New-DSCResource
@@ -368,24 +368,28 @@ function BootstrapDSCModule
 
     checkDependencies
 
-    if(!(Test-Path ".\.paket\paket.exe")){
+    if(!(Test-Path ".\.paket\paket.exe"))
+    {
         Write-Progress -Activity $Activity -Status "Installing Paket" -percentComplete 20
         Invoke-Paket install -NoBootstrap | Out-Null
     }
 
-    if(-not (isOnPath "bundler")))
+    if(-not (isOnPath "bundler"))
+    {
         Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (bundler)" -percentComplete 40
         Invoke-Expression "gem install bundler" | Out-Null
     }
 
     $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput stdout -PassThru
     rm stdout
-    if($bundle.Exitcode -ne 0){
+    if($bundle.Exitcode -ne 0)
+    {
         Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (gems)" -percentComplete 60
         Invoke-Expression "bundle install" | Out-Null
     }
 
-    if(!(Test-Path ".\.git")){
+    if(!(Test-Path ".\.git"))
+    {
         Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 80
         Invoke-Expression "git init" | Out-Null
     }
