@@ -277,11 +277,11 @@ param (
 
     BootstrapDSCModule
 
-    $azureRMCredentials = "$env:HOME/.azure/credentials"
+    $azureRMCredentials = "$HOME/.azure/credentials"
 
     if( -not (Test-Path $azureRMCredentials))
     {
-        throw New-Object System.Exception ("Create an azure credentials file at $env:HOME/.azure/.credentials as described here: https://github.com/test-kitchen/kitchen-azurerm")
+        throw New-Object System.Exception ("Create an azure credentials file at $HOME/.azure/.credentials as described here: https://github.com/test-kitchen/kitchen-azurerm")
     }
 
     if (-not (Test-Path env:AZURERM_SUBSCRIPTION)) {
@@ -312,7 +312,7 @@ param (
 
 function Get-DSCModuleGlobalConfig
 {
-    $configFile = "$env:HOME/DSCWorkflowConfig.json"
+    $configFile = "$HOME/DSCWorkflowConfig.json"
 
     if(-Not (Test-Path $configFile))
     {
@@ -332,7 +332,7 @@ function Set-DSCModuleGlobalConfig
         [string] $Value
     )
 
-    $configFile = "$env:HOME/DSCWorkflowConfig.json"
+    $configFile = "$HOME/DSCWorkflowConfig.json"
     $json = Get-DSCModuleGlobalConfig
     $Key = $Key.ToLower()
     $json | Add-Member NoteProperty $Key $Value -Force
