@@ -4,6 +4,8 @@ $CA_URL = "https://curl.haxx.se/ca/${CA_FILE}"
 
 New-Item -Type Directory -Force $SSL_DIR
 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;
+
 [Environment]::SetEnvironmentVariable("SSL_CERT_FILE", "${SSL_DIR}\${CA_FILE}", "User")
 $Env:SSL_CERT_FILE = [Environment]::GetEnvironmentVariable("SSL_CERT_FILE", "User")
 
