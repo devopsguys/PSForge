@@ -381,7 +381,7 @@ function BootstrapDSCModule
     }
 
     $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput stdout -PassThru
-    rm stdout
+    Remove-Item stdout
     if($bundle.Exitcode -ne 0)
     {
         Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (gems)" -percentComplete 60
