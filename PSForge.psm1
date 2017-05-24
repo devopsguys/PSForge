@@ -385,7 +385,7 @@ function BootstrapDSCModule
     if($bundle.Exitcode -ne 0)
     {
         Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (gems)" -percentComplete 60
-        Invoke-Expression "bundle install" | Out-Null
+        Invoke-Expression "bundle install --path .bundle" | Out-Null
     }
 
     if(!(Test-Path ".\.git"))
