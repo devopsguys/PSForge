@@ -25,6 +25,6 @@
                          description='$PLASTER_PARAM_project_short_description'
                          companyName='$PLASTER_PARAM_company'
                          encoding='UTF8-NoBOM'/>
-      <templateFile source='resource.schema.psm1'  destination='${PLASTER_PARAM_project_name}.schema.psm1'/>
+      <templateFile source='resource.schema.psm1.template'  destination='${PLASTER_PARAM_project_name}.schema.psm1'/>
   </content>
 </plasterManifest>
