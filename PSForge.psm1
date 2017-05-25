@@ -3,10 +3,15 @@ if((get-module | Where-Object { $_.Name -eq "Plaster" }).Count -eq 0)
     Import-Module Plaster
 }
 
+function getEnvironmentOSVersion
+{
+    return [Environment]::OSVersion
+}
+
 function getOSPlatform
 {
 
-    $osPlatform = ([Environment]::OSVersion).Platform
+    $osPlatform = (getEnvironmentOSVersion).Platform
 
     if($osPlatform -like "Win*")
     {
