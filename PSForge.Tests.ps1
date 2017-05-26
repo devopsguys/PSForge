@@ -67,6 +67,7 @@ InModuleScope PSForge {
         Context "Ruby is not installed" {
             
             $rubyException = "PSForge has a dependency on 'ruby' 2.3 or higher - please install ruby via the system package manager."
+            $rubyVersionException = "PSForge has a dependency on 'ruby' 2.3 or higher. Current version of ruby is 2.2.2p222 - please update ruby via the system package manager."
 
             It "Should throw exception if Ruby not installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
@@ -82,14 +83,16 @@ InModuleScope PSForge {
 
             It "Should throw exception if wrong Ruby installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
-                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "ruby" }
-                 { CheckDependencies } | Should Throw $rubyException
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
+                Mock Invoke-Expression { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
+                 { CheckDependencies } | Should Throw $rubyVersionException
             }
 
             It "Should not throw exception if wrong Ruby installed on Windows" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
-                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "ruby" }
-                 { CheckDependencies } | Should Throw $rubyException
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
+                Mock Invoke-Expression { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
+                 { CheckDependencies } | Should Throw $rubyVersionException
             }
         
         }
