@@ -1,6 +1,6 @@
 install:
-  - Install-Module pester -Scope currentuser
-  - Install-Module plaster -Scope currentuser
+  - ps: Install-Module pester -Scope currentuser
+  - ps: Install-Module plaster -Scope currentuser
 
 build: false
 
