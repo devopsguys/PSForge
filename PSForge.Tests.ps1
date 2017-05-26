@@ -3,11 +3,11 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 
 InModuleScope PSForge {
 
-    Describe "PSForge" {
-        It "PSForge is available to be imported when called" {
-            Get-Module  –ListAvailable | where { $_.Name –eq 'PSForge' } | should not be $null  
-        }
-    }
+    # Describe "PSForge" {
+    #     It "PSForge is available to be imported when called" {
+    #         Get-Module  –ListAvailable | where { $_.Name –eq 'PSForge' } | should not be $null  
+    #     }
+    # }
 
     Describe "OS Detection" {
     
