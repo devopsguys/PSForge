@@ -94,14 +94,12 @@ param(
     return Test-Path "${path}\.paket"
 }
 
-function Invoke-Paket
+function changeDirectoryToProjectRoot
 {
-    param
-    (
-        [switch]$NoBootStrap
-    )
+    $popd = $false
 
     $currentDirectory = (Get-Item .).FullName
+    $parentDirectories = ($currentDirectory -Split "\${pathSeparator}")
 
     $pathSeparator = "\"
 
@@ -109,8 +107,6 @@ function Invoke-Paket
     {
         $pathSeparator = "/"
     }
-
-    $parentDirectories = ($currentDirectory -Split "\${pathSeparator}")
 
     if(-Not (Test-Path ".\.paket"))
     {
@@ -131,12 +127,23 @@ function Invoke-Paket
             }
         }
     }
+    return $popd
+}
+
+function Invoke-Paket
+{
+    param
+    (
+        [switch]$NoBootStrap
+    )
+
+    $popd = changeDirectoryToProjectRoot
 
     if(-Not $NoBootstrap){
         BootstrapDSCModule
     }
 
-    GeneratePaketFiles
+    generatePaketFiles
 
     if(-not (Test-Path ".\.paket\paket.exe"))
     {
@@ -162,9 +169,9 @@ function Invoke-Paket
 
     $commandArgs = $args -join " "
 
-    Invoke-Expression "$paketBin $commandArgs"
+    Invoke-Expression "$paketBin $commandArgs".TrimEnd()
 
-    ClearPaketFiles
+    clearPaketFiles
 
     if($popd){
         Pop-Location
@@ -403,19 +410,19 @@ function BootstrapDSCModule
 
 }
 
-function ClearPaketFiles
+function clearPaketFiles
 {
     Remove-Item paket.dependencies -ErrorAction SilentlyContinue
     Remove-Item paket.template -ErrorAction SilentlyContinue
 }
 
-function GeneratePaketFiles
+function generatePaketFiles
 {
     $ModuleName = (Get-Item -Path ".\" -Verbose).BaseName
     Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable moduleManifest
     Import-LocalizedData -BaseDirectory "." -FileName "dependencies.psd1" -BindingVariable dependenciesManifest
 
-    ClearPaketFiles
+    clearPaketFiles
 
     New-Item paket.dependencies | Out-Null
     New-Item paket.template | Out-Null

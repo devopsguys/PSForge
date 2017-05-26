@@ -157,4 +157,25 @@ InModuleScope PSForge {
 
     }
 
+    Describe "Invoke-Paket" {
+        Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+        Mock generatePaketFiles {}
+        Mock changeDirectoryToProjectRoot {}
+        Mock Invoke-Expression { } -ParameterFilter { $Command -eq ".paket\paket.exe" }
+        Mock clearPaketFiles {}
+        Mock Test-Path { $True } -ParameterFilter { $Path -eq ".\.paket\paket.exe" }
+        Mock BootstrapDSCModule {}
+
+        It "Should run Bootstrap by default" {
+            Invoke-Paket
+            Assert-MockCalled BootstrapDSCModule -Times 1 -Scope It
+        }
+
+        It "Should not run Bootstrap if the switch is passed in" {
+            Invoke-Paket -NoBootStrap
+            Assert-MockCalled BootstrapDSCModule -Times 0 -Scope It
+        }
+
+    }
+
 }
