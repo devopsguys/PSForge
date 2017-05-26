@@ -53,14 +53,23 @@ InModuleScope PSForge {
             It "Should throw exception if Mono not installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
                 Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
+                
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "mono" }
-                 { CheckDependencies } | Should Throw "PSForge has a dependency on 'mono' on Linux and MacOS - please install mono via the system package manager."
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
+                Mock Invoke-Expression { "ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
+                 
+                { CheckDependencies } | Should Throw "PSForge has a dependency on 'mono' on Linux and MacOS - please install mono via the system package manager."
             }
 
             It "Should not throw exception if Mono not installed on Windows" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "mono" }
-                 { CheckDependencies } | Should not Throw
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
+                Mock Invoke-Expression { "ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
+            
+                { CheckDependencies } | Should not Throw
             }
         
         }
@@ -73,29 +82,45 @@ InModuleScope PSForge {
             It "Should throw exception if Ruby not installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
                 Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
+                
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "ruby" }
-                 { CheckDependencies } | Should Throw $rubyException
+                   
+                { CheckDependencies } | Should Throw $rubyException
             }
 
             It "Should not throw exception if Ruby not installed on Windows" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+                
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "ruby" }
-                 { CheckDependencies } | Should Throw $rubyException
+                
+                { CheckDependencies } | Should Throw $rubyException
             }
 
             It "Should throw exception if wrong Ruby installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
                 Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
+
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
                 Mock Invoke-Expression { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
-                 { CheckDependencies } | Should Throw $rubyVersionException
+                
+                { CheckDependencies } | Should Throw $rubyVersionException
             }
 
-            It "Should not throw exception if wrong Ruby installed on Windows" {
+            It "Should throw exception if wrong Ruby installed on Windows" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+                
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
                 Mock Invoke-Expression { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
-                 { CheckDependencies } | Should Throw $rubyVersionException
+                
+                { CheckDependencies } | Should Throw $rubyVersionException
             }
         
         }
@@ -107,14 +132,25 @@ InModuleScope PSForge {
             It "Should throw exception if Git not installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
                 Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
+                
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "git" }
-                 { CheckDependencies } | Should Throw $gitException
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
+                Mock Invoke-Expression { "ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
+                
+
+                { CheckDependencies } | Should Throw $gitException
             }
 
             It "Should not throw exception if Git not installed on Windows" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+                
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "git" }
-                 { CheckDependencies } | Should Throw $gitException
+                Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
+                Mock Invoke-Expression { "ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
+                
+                { CheckDependencies } | Should Throw $gitException
             }
         
         }
