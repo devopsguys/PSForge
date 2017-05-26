@@ -12,7 +12,7 @@ InModuleScope PSForge {
     Describe "OS Detection" {
     
         Context "Windows" {
-            Mock -ModuleName PSForge -CommandName getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+            Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
             It "Should detect Windows installation" {
                 getOSPlatform | should be "windows"
                 isWindows | should be $True
@@ -21,7 +21,7 @@ InModuleScope PSForge {
         }
 
         Context "Linux" {
-            Mock -ModuleName PSForge -CommandName getEnvironmentOSVersion { @{"Platform" = "Unix" }}
+            Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
             
             Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
             It "Should detect Linux installation" {
@@ -33,7 +33,7 @@ InModuleScope PSForge {
         }
 
         Context "MacOS" {
-            Mock -ModuleName PSForge -CommandName getEnvironmentOSVersion { @{"Platform" = "Unix" }}
+            Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
             
             Mock Invoke-Expression { "Darwin" } -Verifiable -ParameterFilter {$Command -eq "uname"}
             It "Should detect Linux installation" {
@@ -44,6 +44,74 @@ InModuleScope PSForge {
             }
         }
            
+    }
+
+    Describe "Dependency checking"{
+
+        Context "Mono is not installed" {
+            
+            It "Should throw exception if Mono not installed on Unix" {
+                Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
+                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "mono" }
+                 { CheckDependencies } | Should Throw "PSForge has a dependency on 'mono' on Linux and MacOS - please install mono via the system package manager."
+            }
+
+            It "Should not throw exception if Mono not installed on Windows" {
+                Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "mono" }
+                 { CheckDependencies } | Should not Throw
+            }
+        
+        }
+
+        Context "Ruby is not installed" {
+            
+            $rubyException = "PSForge has a dependency on 'ruby' 2.3 or higher - please install ruby via the system package manager."
+
+            It "Should throw exception if Ruby not installed on Unix" {
+                Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
+                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "ruby" }
+                 { CheckDependencies } | Should Throw $rubyException
+            }
+
+            It "Should not throw exception if Ruby not installed on Windows" {
+                Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "ruby" }
+                 { CheckDependencies } | Should Throw $rubyException
+            }
+
+            It "Should throw exception if wrong Ruby installed on Unix" {
+                Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
+                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "ruby" }
+                 { CheckDependencies } | Should Throw $rubyException
+            }
+
+            It "Should not throw exception if wrong Ruby installed on Windows" {
+                Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "ruby" }
+                 { CheckDependencies } | Should Throw $rubyException
+            }
+        
+        }
+
+        Context "Git is not installed" {
+            
+            $gitException = "PSForge has a dependency on 'git' - please install git via the system package manager."
+
+            It "Should throw exception if Git not installed on Unix" {
+                Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
+                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "git" }
+                 { CheckDependencies } | Should Throw $gitException
+            }
+
+            It "Should not throw exception if Git not installed on Windows" {
+                Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
+                Mock isOnPath { $False } -ParameterFilter { $cmd -eq "git" }
+                 { CheckDependencies } | Should Throw $gitException
+            }
+        
+        }
+
     }
 
 }
