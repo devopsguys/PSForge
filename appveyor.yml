@@ -1,3 +1,7 @@
+image:
+  - WMF5
+  - Ubuntu
+
 install:
   - ps: Install-Module pester -Scope currentuser
   - ps: Install-Module plaster -Scope currentuser
