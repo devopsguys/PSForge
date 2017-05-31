@@ -197,7 +197,7 @@ InModuleScope PSForge {
             Mock Invoke-Expression {} -ParameterFilter { $Command -eq ".paket\paket.exe" } -Scope It
             Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }} -Scope It
             Invoke-Paket
-            Assert-MockCalled Invoke-Expression -ParameterFilter { $Command -eq ".paket\paket.exe" } -Exactly 2 -Scope It
+            Assert-MockCalled Invoke-Expression -ParameterFilter { $Command -eq ".paket\paket.exe" } -Exactly 1 -Scope It
         }
 
     }
