@@ -161,19 +161,43 @@ InModuleScope PSForge {
         Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
         Mock generatePaketFiles {}
         Mock changeDirectoryToProjectRoot {}
-        Mock Invoke-Expression { } -ParameterFilter { $Command -eq ".paket\paket.exe" }
+        Mock Invoke-Expression {} -ParameterFilter { $Command -eq ".paket\paket.exe" }
         Mock clearPaketFiles {}
         Mock Test-Path { $True } -ParameterFilter { $Path -eq ".\.paket\paket.exe" }
         Mock BootstrapDSCModule {}
 
         It "Should run Bootstrap by default" {
             Invoke-Paket
-            Assert-MockCalled BootstrapDSCModule -Times 1 -Scope It
+            Assert-MockCalled BootstrapDSCModule -Exactly 1 -Scope It
         }
 
         It "Should not run Bootstrap if the switch is passed in" {
             Invoke-Paket -NoBootStrap
-            Assert-MockCalled BootstrapDSCModule -Times 0 -Scope It
+            Assert-MockCalled BootstrapDSCModule -Exactly 0 -Scope It
+        }
+
+        It "Should generate Paket files" {
+            Invoke-Paket
+            Assert-MockCalled generatePaketFiles -Exactly 1 -Scope It
+        }
+
+        It "Should try and change directory to project root" {
+            Invoke-Paket
+            Assert-MockCalled changeDirectoryToProjectRoot -Exactly 1 -Scope It
+        }
+
+        It "Should execute Paket with mono on Unix" {
+            Mock Invoke-Expression { } -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Scope It
+            Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }} -Scope It
+            Invoke-Paket
+            Assert-MockCalled Invoke-Expression -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Exactly 1 -Scope It
+        }
+
+        It "Should execute Paket directly on Windows" {
+            Mock Invoke-Expression {} -ParameterFilter { $Command -eq ".paket\paket.exe" } -Scope It
+            Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }} -Scope It
+            Invoke-Paket
+            Assert-MockCalled Invoke-Expression -ParameterFilter { $Command -eq ".paket\paket.exe" } -Exactly 1 -Scope It
         }
 
     }
