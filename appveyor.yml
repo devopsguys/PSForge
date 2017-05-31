@@ -6,10 +6,9 @@ install:
   - ps: Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
   - ps: Install-Module Pester -Scope CurrentUser
   - ps: Install-Module Plaster -Scope CurrentUser
-build: false
-
-test_script:
   - ps: Import-Module .\PSForge.psm1
   - ps: $res = Invoke-Pester -Path .\PSForge.Tests.ps1 -OutputFormat NUnitXml -OutputFile TestsResults.xml -PassThru
   - ps: (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TestsResults.xml))
   - ps: if ($res.FailedCount -gt 0) { throw "$($res.FailedCount) tests failed."}
+
+  build: false
