@@ -3,9 +3,9 @@ image:
   - Ubuntu
 
 install:
-  - ps: Install-Module pester -Scope currentuser
-  - ps: Install-Module plaster -Scope currentuser
-
+  - ps: Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+  - ps: Install-Module Pester -Scope CurrentUser
+  - ps: Install-Module Plaster -Scope CurrentUser
 build: false
 
 test_script:
