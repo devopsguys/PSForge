@@ -18,6 +18,10 @@ InModuleScope PSForge {
                 isWindows | should be $True
                 isUnix | should be $False
             }
+
+            It "Should use the Windows path separator" {
+                pathSeparator | should be "\"
+            }
         }
 
         Context "Linux" {
@@ -30,6 +34,10 @@ InModuleScope PSForge {
                 isUnix | should be $True
                 Assert-VerifiableMocks
             }
+
+            It "Should use the Linux path separator" {
+                pathSeparator | should be "/"
+            }
         }
 
         Context "MacOS" {
@@ -41,6 +49,10 @@ InModuleScope PSForge {
                 isWindows | should be $False
                 isUnix | should be $True
                 Assert-VerifiableMocks
+            }
+
+            It "Should use the MacOS path separator" {
+                pathSeparator | should be "/"
             }
         }
            

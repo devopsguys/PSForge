@@ -94,19 +94,18 @@ param(
     return Test-Path "${path}\.paket"
 }
 
+function pathSeparator
+{
+    if(isWindows){return "\"}
+    return "/"
+}
+
 function changeDirectoryToProjectRoot
 {
     $popd = $false
 
     $currentDirectory = (Get-Item .).FullName
-    $parentDirectories = ($currentDirectory -Split "\${pathSeparator}")
-
-    $pathSeparator = "\"
-
-    if(-Not (isWindows))
-    {
-        $pathSeparator = "/"
-    }
+    $parentDirectories = ($currentDirectory -Split "\$(pathSeparator)")
 
     if(-Not (Test-Path ".\.paket"))
     {
