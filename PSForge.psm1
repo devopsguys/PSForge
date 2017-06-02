@@ -3,6 +3,13 @@ if((get-module | Where-Object { $_.Name -eq "Plaster" }).Count -eq 0)
     Import-Module Plaster
 }
 
+function getPathSeparator
+{
+    if(isWindows){return "\"}
+    return "/"
+}
+
+
 function getEnvironmentOSVersion
 {
     return [Environment]::OSVersion
@@ -94,24 +101,18 @@ param(
     return Test-Path "${path}\.paket"
 }
 
-function pathSeparator
-{
-    if(isWindows){return "\"}
-    return "/"
-}
-
 function changeDirectoryToProjectRoot
 {
     $popd = $false
 
     $currentDirectory = (Get-Item .).FullName
-    $parentDirectories = ($currentDirectory -Split "\$(pathSeparator)")
+    $parentDirectories = ($currentDirectory -Split "\$(getPathSeparator)")
 
     if(-Not (Test-Path ".\.paket"))
     {
         for($i = 1; $i -le $parentDirectories.count; $i++){
             $lastIndex = $parentDirectories.count - $i
-            $directory = $parentDirectories[0..$lastIndex] -Join $pathSeparator
+            $directory = $parentDirectories[0..$lastIndex] -Join "$(getPathSeparator)"
             if(isAPaketFolder -path $directory)
             {
                 Write-Output "Temporarily switching directory to ${directory}"

@@ -20,7 +20,7 @@ InModuleScope PSForge {
             }
 
             It "Should use the Windows path separator" {
-                pathSeparator | should be "\"
+                getPathSeparator | should be "\"
             }
         }
 
@@ -36,7 +36,7 @@ InModuleScope PSForge {
             }
 
             It "Should use the Linux path separator" {
-                pathSeparator | should be "/"
+                getPathSeparator | should be "/"
             }
         }
 
@@ -52,7 +52,7 @@ InModuleScope PSForge {
             }
 
             It "Should use the MacOS path separator" {
-                pathSeparator | should be "/"
+                getPathSeparator | should be "/"
             }
         }
            
