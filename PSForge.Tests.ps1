@@ -18,10 +18,6 @@ InModuleScope PSForge {
                 isWindows | should be $True
                 isUnix | should be $False
             }
-
-            It "Should use the Windows path separator" {
-                getPathSeparator | should be "\"
-            }
         }
 
         Context "Linux" {
@@ -34,10 +30,6 @@ InModuleScope PSForge {
                 isUnix | should be $True
                 Assert-VerifiableMocks
             }
-
-            It "Should use the Linux path separator" {
-                getPathSeparator | should be "/"
-            }
         }
 
         Context "MacOS" {
@@ -49,10 +41,6 @@ InModuleScope PSForge {
                 isWindows | should be $False
                 isUnix | should be $True
                 Assert-VerifiableMocks
-            }
-
-            It "Should use the MacOS path separator" {
-                getPathSeparator | should be "/"
             }
         }
            
@@ -172,7 +160,7 @@ InModuleScope PSForge {
     Describe "Invoke-Paket" {
         Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
         Mock generatePaketFiles {}
-        Mock changeDirectoryToProjectRoot {}
+        Mock getProjectRoot {}
         Mock Invoke-Expression {} -ParameterFilter { $Command -eq ".paket\paket.exe" }
         Mock clearPaketFiles {}
         Mock Test-Path { $True } -ParameterFilter { $Path -eq ".\.paket\paket.exe" }
@@ -183,11 +171,6 @@ InModuleScope PSForge {
             Assert-MockCalled BootstrapDSCModule -Exactly 1 -Scope It
         }
 
-        It "Should not run Bootstrap if the switch is passed in" {
-            Invoke-Paket -NoBootStrap
-            Assert-MockCalled BootstrapDSCModule -Exactly 0 -Scope It
-        }
-
         It "Should generate Paket files" {
             Invoke-Paket
             Assert-MockCalled generatePaketFiles -Exactly 1 -Scope It
@@ -195,7 +178,7 @@ InModuleScope PSForge {
 
         It "Should try and change directory to project root" {
             Invoke-Paket
-            Assert-MockCalled changeDirectoryToProjectRoot -Exactly 1 -Scope It
+            Assert-MockCalled getProjectRoot -Exactly 1 -Scope It
         }
 
         It "Should execute Paket with mono on Unix" {
