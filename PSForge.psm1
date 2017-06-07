@@ -117,13 +117,13 @@ function installRuby
     Remove-Item $rubyInstaller
 }
 
-function isAPaketFolder
+function isProjectRoot
 {
 param(
     [Parameter(Mandatory=$True,Position=1)]
     [string]$path
 )
-    return Test-Path "${path}\.paket"
+    return Test-Path "${path}\.git"
 }
 
 function changeDirectoryToProjectRoot
@@ -133,12 +133,12 @@ function changeDirectoryToProjectRoot
     $currentDirectory = (Get-Item .).FullName
     $parentDirectories = ($currentDirectory -Split "\$(getPathSeparator)")
 
-    if(-Not (Test-Path ".\.paket"))
+    if(-Not (Test-Path ".\.git"))
     {
         for($i = 1; $i -le $parentDirectories.count; $i++){
             $lastIndex = $parentDirectories.count - $i
             $directory = $parentDirectories[0..$lastIndex] -Join "$(getPathSeparator)"
-            if(isAPaketFolder -path $directory)
+            if(isProjectRoot -path $directory)
             {
                 Write-Output "Temporarily switching directory to ${directory}"
                 $popd = $True
@@ -148,7 +148,7 @@ function changeDirectoryToProjectRoot
 
             if($lastIndex -eq 0)
             {
-                throw New-Object System.Exception ("No .paket directory found in ${currentDirectory} or any of its parent directories.")
+                throw New-Object System.Exception ("No .git directory found in ${currentDirectory} or any of its parent directories.")
             }
         }
     }
