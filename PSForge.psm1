@@ -155,6 +155,21 @@ function changeDirectoryToProjectRoot
     return $popd
 }
 
+function updateBundle{
+
+    if(-not (isOnPath "bundler"))
+    {
+        Invoke-Expression "gem install bundler" | Out-Null
+    }
+
+    $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput stdout -PassThru
+    Remove-Item stdout
+    if($bundle.Exitcode -ne 0)
+    {
+        Invoke-Expression "bundle install --path .bundle"
+    }
+}
+
 function Invoke-Paket
 {
     param
@@ -217,7 +232,7 @@ param(
      project_short_description = $Description
     }
 
-    Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 10
+    Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 30
     Invoke-Plaster @PlasterParams -NoLogo *> $null
 
     Push-Location $ModuleName
@@ -320,17 +335,19 @@ param (
         $prompt = ($defaultValue,$prompt)[[bool]$prompt]
 
         $env:AZURERM_SUBSCRIPTION = $prompt
-     }
+    }
 
-     $KitchenParams = $Action
+    $KitchenParams = $Action
 
-     if($Debug)
-     {
-         $KitchenParams += " --log-level Debug"
-     }
+    if($Debug)
+    {
+        $KitchenParams += " --log-level Debug"
+    }
 
-     Invoke-Paket update
-     Invoke-Expression "bundle exec kitchen ${KitchenParams}"
+    updateBundle
+
+    Invoke-Paket update
+    Invoke-Expression "bundle exec kitchen ${KitchenParams}"
 
 }
 
@@ -405,22 +422,8 @@ function BootstrapDSCModule
 
     if(!(Test-Path ".\.git"))
     {
-        Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 20
+        Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 60
         Invoke-Expression "git init" | Out-Null
-    }
-
-    if(-not (isOnPath "bundler"))
-    {
-        Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (bundler)" -percentComplete 40
-        Invoke-Expression "gem install bundler" | Out-Null
-    }
-
-    $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput stdout -PassThru
-    Remove-Item stdout
-    if($bundle.Exitcode -ne 0)
-    {
-        Write-Progress -Activity $Activity -Status "Installing Ruby Dependencies (gems)" -percentComplete 60
-        Invoke-Expression "bundle install --path .bundle" | Out-Null
     }
 
     Write-Progress -Activity $Activity -percentComplete 100 -Completed
