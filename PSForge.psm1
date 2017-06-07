@@ -16,12 +16,6 @@ param(
 
 }
 
-function getPathSeparator
-{
-    if(isWindows){return "\"}
-    return "/"
-}
-
 function getEnvironmentOSVersion
 {
     return [Environment]::OSVersion
@@ -126,33 +120,18 @@ param(
     return Test-Path "${path}\.git"
 }
 
-function changeDirectoryToProjectRoot
+function getProjectRoot
 {
-    $popd = $false
 
-    $currentDirectory = (Get-Item .).FullName
-    $parentDirectories = ($currentDirectory -Split "\$(getPathSeparator)")
+    $projectRoot = Invoke-Expression "git rev-parse --show-toplevel"
 
-    if(-Not (Test-Path ".\.git"))
+    if(-Not (Test-Path $projectRoot))
     {
-        for($i = 1; $i -le $parentDirectories.count; $i++){
-            $lastIndex = $parentDirectories.count - $i
-            $directory = $parentDirectories[0..$lastIndex] -Join "$(getPathSeparator)"
-            if(isProjectRoot -path $directory)
-            {
-                Write-Output "Temporarily switching directory to ${directory}"
-                $popd = $True
-                Push-Location $directory
-                break
-            }
-
-            if($lastIndex -eq 0)
-            {
-                throw New-Object System.Exception ("No .git directory found in ${currentDirectory} or any of its parent directories.")
-            }
-        }
+        throw New-Object System.Exception ("No .git directory found in ${PWD} or any of its parent directories.")
     }
-    return $popd
+
+    return $projectRoot
+
 }
 
 function updateBundle{
@@ -172,17 +151,10 @@ function updateBundle{
 
 function Invoke-Paket
 {
-    param
-    (
-        [switch]$NoBootStrap
-    )
 
-    $popd = changeDirectoryToProjectRoot
-
-    if(-Not $NoBootstrap){
-        BootstrapDSCModule
-    }
-
+    Push-Location "$(getProjectRoot)"
+    
+    BootstrapDSCModule
     generatePaketFiles
 
     if(isWindows)
@@ -200,9 +172,7 @@ function Invoke-Paket
 
     clearPaketFiles
 
-    if($popd){
-        Pop-Location
-    }
+    Pop-Location
 
 }
 
@@ -252,18 +222,16 @@ function New-DSCResource
 {
 param(
     [Parameter(Mandatory=$True,Position=1)]
-    [string]$ResourceName,
-    [string]$ModuleName
+    [string]$ResourceName
 )
+
+    Push-Location "$(getProjectRoot)"
 
     CheckUserConfig
 
     Write-Output "Scaffolding new DSC resource: $resource"
 
-    if(!$ModuleName)
-    {
-        $ModuleName = (Get-Item -Path ".\" -Verbose).BaseName
-    }
+    $ModuleName = (Get-Item -Path ".\" -Verbose).BaseName
 
     if(-not (Test-Path "${ModuleName}.psd1"))
     {
@@ -286,8 +254,9 @@ param(
     $PlasterParams.version = "1.0.0"
 
     Invoke-Plaster @PlasterParams -NoLogo *> $null
-    Write-Output "New resource has been created at .\DSCResources\${ResourceName}"
+    Write-Output "New resource has been created at $(Get-Item DSCResources\$ResourceName)"
 
+    Pop-Location
 }
 
 function Export-DSCModule
@@ -297,11 +266,13 @@ param
     [parameter(Mandatory = $true,Position=1)]
     [string]$Version
 )
+    Push-Location "$(getProjectRoot)"
 
     BootstrapDSCModule
     Invoke-Paket update
     Invoke-Paket pack output .\output version $version
 
+    Pop-Location
 }
 
 function Test-DSCModule
@@ -311,6 +282,8 @@ param (
     [string] $Action = 'verify',
     [switch] $Debug
 )
+
+    Push-Location "$(getProjectRoot)"
 
     Write-Output "Action: $Action"
 
@@ -348,6 +321,8 @@ param (
 
     Invoke-Paket update
     Invoke-Expression "bundle exec kitchen ${KitchenParams}"
+
+    Pop-Location
 
 }
 
