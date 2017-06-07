@@ -4,3 +4,4 @@ packages/**/*
 .paket/paket.targets
 *.nupkg
 .vagrant
+ruby-*/
