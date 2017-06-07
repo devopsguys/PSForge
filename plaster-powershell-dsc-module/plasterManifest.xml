@@ -29,14 +29,10 @@
                            description='$PLASTER_PARAM_project_short_description'
                            companyName='$PLASTER_PARAM_company'
                            encoding='UTF8-NoBOM'/>
-        <file source='Gemfile'  destination='Gemfile'/>
-        <file source='paket'  destination='paket'/>
-        <file source='paket.bat'  destination='paket.bat'/>
-        <file source='_paket\**' destination='.paket'/>
+        <file source='Gemfile'  destination='Gemfile'/>        
         <templateFile source='Examples\dsc_configuration.ps1.template' destination='Examples\dsc_configuration.ps1'/>
         <file source='test/Default.Tests.ps1'
             destination='test/integration/default/${PLASTER_PARAM_project_name}.Tests.ps1'/>
-        <templateFile source='paket.template'  destination='paket.template'/>
         <templateFile source='_gitignore'  destination='.gitignore'/>
         <templateFile source='_kitchen.yml'  destination='.kitchen.yml'/>
         <templateFile source='README.md'  destination='README.md'/>

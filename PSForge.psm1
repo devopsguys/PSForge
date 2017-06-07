@@ -170,19 +170,6 @@ function Invoke-Paket
 
     generatePaketFiles
 
-    if(-not (Test-Path ".\.paket\paket.exe"))
-    {
-        if(isWindows)
-        {
-            Invoke-Expression ".\.paket\paket.bootstrapper.exe"
-        }
-        else
-        {
-            Invoke-Expression "mono .\.paket\paket.bootstrapper.exe"
-            Move-Item ".\paket.exe" ".\.paket\paket.exe"
-        }
-    }
-
     if(isWindows)
     {
         $paketBin = ".paket\paket.exe"
@@ -416,10 +403,10 @@ function BootstrapDSCModule
 
     checkDependencies
 
-    if(!(Test-Path ".\.paket\paket.exe"))
+    if(!(Test-Path ".\.git"))
     {
-        Write-Progress -Activity $Activity -Status "Installing Paket" -percentComplete 20
-        Invoke-Paket install -NoBootstrap | Out-Null
+        Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 20
+        Invoke-Expression "git init" | Out-Null
     }
 
     if(-not (isOnPath "bundler"))
@@ -436,18 +423,13 @@ function BootstrapDSCModule
         Invoke-Expression "bundle install --path .bundle" | Out-Null
     }
 
-    if(!(Test-Path ".\.git"))
-    {
-        Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 80
-        Invoke-Expression "git init" | Out-Null
-    }
-
     Write-Progress -Activity $Activity -percentComplete 100 -Completed
 
 }
 
 function clearPaketFiles
 {
+    Remove-Item -Recurse .paket -ErrorAction SilentlyContinue
     Remove-Item paket.dependencies -ErrorAction SilentlyContinue
     Remove-Item paket.template -ErrorAction SilentlyContinue
 }
@@ -458,7 +440,23 @@ function generatePaketFiles
     Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable moduleManifest
     Import-LocalizedData -BaseDirectory "." -FileName "dependencies.psd1" -BindingVariable dependenciesManifest
 
+    Push-Location "$PSScriptRoot\paket"
+    if(-not (Test-Path ".\paket.exe"))
+    {
+        if(isWindows)
+        {
+            Invoke-Expression ".\paket.bootstrapper.exe"
+        }
+        else
+        {
+            Invoke-Expression "mono .\paket.bootstrapper.exe"
+        }
+    }
+    Pop-Location
+
     clearPaketFiles
+
+    Copy-Item -Recurse $PSScriptRoot\paket .\.paket | Out-Null
 
     New-Item paket.dependencies | Out-Null
     New-Item paket.template | Out-Null

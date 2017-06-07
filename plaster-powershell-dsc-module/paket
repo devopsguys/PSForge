@@ -1,8 +1,0 @@
-#!/bin/bash
-
-paket=".paket/paket.exe"
-if [ ! -f "${paket}" ];then
-  mono ".paket/paket.bootstrapper.exe"
-fi
-
-mono .paket/paket.exe $*
