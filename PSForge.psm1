@@ -3,12 +3,24 @@ if((get-module | Where-Object { $_.Name -eq "Plaster" }).Count -eq 0)
     Import-Module Plaster
 }
 
+function addToPath
+{
+param(
+    [string]$path
+)
+
+    if(-not ($env:PATH -split ";") -contains $path)
+    {
+        $env:PATH = $path,$env:PATH -join ";"
+    }
+
+}
+
 function getPathSeparator
 {
     if(isWindows){return "\"}
     return "/"
 }
-
 
 function getEnvironmentOSVersion
 {
@@ -90,6 +102,19 @@ function checkDependencies
         throw New-Object System.Exception ("PSForge has a dependency on 'ruby' 2.3 or higher. Current version of ruby is ${longRubyVersion} - please update ruby via the system package manager.")
     }
 
+}
+
+function installRuby
+{	
+    $Activity = "Installing Ruby"
+    $rubyURL = "https://dl.bintray.com/oneclick/rubyinstaller/ruby-2.3.3-i386-mingw32.7z"
+    $rubyInstaller = "$PSScriptRoot\ruby.7z"
+    Write-Progress -Activity $Activity -Status "Downloading Ruby archive" -percentComplete 20
+    Invoke-WebRequest -Uri $rubyURL -OutFile $rubyInstaller 
+    Write-Progress -Activity $Activity -Status "Extracting Ruby archive" -percentComplete 60
+    & $PSScriptRoot\7zip\7za.exe x $rubyInstaller -o"${PSScriptRoot}" | Out-Null
+    Write-Progress -Activity $Activity -percentComplete 100 -Completed
+    Remove-Item $rubyInstaller
 }
 
 function isAPaketFolder
@@ -377,6 +402,17 @@ function BootstrapDSCModule
 {
 
     $Activity = "Bootstrapping Powershell DSC Module"
+
+    if(isWindows)
+    {
+        $RubyPath = "$PSScriptRoot\ruby-2.3.3-i386-mingw32\bin\"
+        addToPath $RubyPath
+        if(-not (Test-Path "$RubyPath\ruby.exe"))
+        {
+            installRuby
+            . $PSScriptRoot\helper_scripts\fixRubyCertStore.ps1
+        }
+    }
 
     checkDependencies
 
