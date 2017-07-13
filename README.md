@@ -5,7 +5,7 @@
 ## Installing a release
 
 1. Run the powershell command `Install-Module PSForge`
-2. [Set up your Azure credentials file and Service Principal]((https://github.com/test-kitchen/kitchen-azurerm))
+2. [Set up your Azure credentials file and Service Principal](https://github.com/test-kitchen/kitchen-azurerm)
 
 ## What is it for?
 
