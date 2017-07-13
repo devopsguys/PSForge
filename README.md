@@ -70,7 +70,7 @@ Once a module has been written and tested, you may want to export it as a Nuget 
 
 Please refer to the documentation for [kitchen-azurerm](https://github.com/test-kitchen/kitchen-azurerm) for instructions on how to set up a Service Principal and the local `${env:HOME}\.azure\credentials` configuration file.
 
-You will need to complete this step
+You will need to complete this step in order to run integration tests.
 
 ## Available commands
 - `New-DSCModule [-ModuleName] <name> [-ResourceNames <resource1> <resourceN-1>]`
