@@ -2,40 +2,28 @@
 
 *Compatible with Windows, OSX and Linux*
 
+## Installing a release
+
+1. Run the powershell command `Install-Module PSForge`
+2. [Set up your Azure credentials file and Service Principal]((https://github.com/test-kitchen/kitchen-azurerm))
+
 ## What is it for?
 
-Our goal is to refactor our monolithic Powershell DSC configurations into a series of smaller, reusable modules that can be tested in isolation. The root configuration for each project should mostly just contain references to custom DSC modules we've created.
+PSForge was created to help refactor a monolithic Powershell DSC configuration into a set of small reusable modules that can be tested in isolation. The original project can then pull in these modules as dependencies.
 
-In order to achieve this goal, PSForge was created to make it easier to set up a blank module, and resolve dependencies that each module may have - in addition to pulling the custom modules into the root project.
+PSForge orchestrates different tasks involved in creating a module, including;
 
-### Setting up a new DSC Module and associated DSC resources
+* Scaffolding a new Powershell DSC module and resources
+* Downloading dependencies to a local folder
+* Testing the module on a VM in Azure
+* Exporting the module as a nuget package
 
-We have a requirement that the modules be tested on environments in Azure with Pester tests, so we needed a way of scaffolding a new DSC module that includes sensible defaults for Test Kitchen configuration files. Under the hood, PSForge makes use of the Plaster project.
-
-### Fetching transitive dependencies for deployment
-
-We needed a way of downloading transitive dependencies (ie. dependencies of dependencies) into a single folder so that the dependencies can be packaged via Nuget. Paket was chosen for this task, as it does an excellent job of handling transitive dependencies.
-
-## How do you use it?
+## How do I create a module?
 
 Creating a new module is as simple as running `New-DSCModule` - PSForge will create the module's folder structure for you, as well as the folder structure for any DSC resources that you define in the `-ResourceNames` parameter.
 
-You can create new resources after the initial setup with the `New-DSCResource` command.
+You can create new resources after the initial setup with the `New-DSCResource` command. 
 
-Once the module is created, PSForge will bootstrap your development environment by;
-* Initialising a local Git repository
-* Installing Ruby gem dependencies (for integration testing)
-* Installing [Paket](https://fsprojects.github.io/Paket/) within the module root directory
-
-## Installation
-
-1. Clone this repository
-2. Install [Ruby 2.3+](https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.4.tar.gz)
-3. Install [Plaster](https://github.com/PowerShell/Plaster)
-4. Set up your Azure credentials file and Service Principal
-3. Run `Import-Module .\PSForge\PSForge.psm1`
-
-In future this installation process will have fewer steps and be set up automatically.
 
 ## Integration Testing with Pester
 
@@ -51,7 +39,7 @@ If you would prefer to use AWS or any other cloud supported by Test Kitchen, ple
 
 PSForge will fetch 3rd party module dependencies for you and place them in the `packages` folder. When running `Test-DSCModule`, [Nuget](https://www.nuget.org/) dependencies that are listed in `dependencies.psm1` will be resolved and downloaded automatically.
 
-Test Kitchen will then upload the `packages` folder and place them onto the `PSModulePath`
+Test Kitchen will then upload the `packages` folder and place them onto the `PSModulePath` of the VM.
 
 `dependencies.psm1` contains the list of Nuget packages that the DSC module relies upon to run, and the list of Nuget feeds that hosts those packages.
 
@@ -89,3 +77,10 @@ You will need to complete this step
 - `New-DSCResource [-ResourceName] <name>`
 - `Export-DSCModule -Version <version>`
 - `Test-DSCModule [-Action] (create,converge,verify,test,destroy)`
+
+
+## Manual Installation
+
+1. Clone this repository
+2. Set up your Azure credentials file and Service Principal
+3. Run `Import-Module .\PSForge\PSForge.psm1`
