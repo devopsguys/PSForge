@@ -1,0 +1,3 @@
+source "http://powershellgallery.com/api/v2"
+nuget Plaster
+nuget Pester

@@ -1,0 +1,4 @@
+NUGET
+  remote: http://powershellgallery.com/api/v2
+    Pester (4.0.3)
+    Plaster (1.0.1)
