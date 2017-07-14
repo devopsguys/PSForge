@@ -1,8 +1,0 @@
-image:
-  - Visual Studio 2015
-  # - Ubuntu
-
-install:
-  - ps: .\appveyor.ps1
-
-build: false
