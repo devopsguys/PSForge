@@ -5,3 +5,5 @@ packages/**/*
 *.nupkg
 .vagrant
 ruby-*/
+coverage.xml
+TestResults.xml
