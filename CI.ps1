@@ -5,4 +5,4 @@ $env:PSModulePath = "${PWD}\packages;" + $env:PSModulePath
 
 Import-Module .\PSForge.psm1
 
-Invoke-Pester -Path .\PSForge.Tests.ps1 -OutputFormat NUnitXml -OutputFile TestResults.xml -PassThru
+Invoke-Pester -Path .\PSForge.Tests.ps1 -OutputFormat NUnitXml -OutputFile TestResults.xml -CodeCoverageOutputFile coverage.xml -PassThru
