@@ -1,6 +1,8 @@
 # PSForge
 
-*Compatible with Windows, OSX and Linux*
+![Status Badge](https://devopsguys.visualstudio.com/_apis/public/build/definitions/bfc0f569-887f-4608-b61b-620980e0af2e/3/badge)
+
+*Compatible with Windows, MacOS and Linux*
 
 ## Installing a release
 
