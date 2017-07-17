@@ -17,7 +17,7 @@ Import-Module .\PSForge.psm1
 Import-LocalizedData -BaseDirectory "." -FileName "PSForge.psd1" -BindingVariable metadata
 
 $moduleVersion = $metadata.ModuleVersion
-$buildNumber = "$moduleVersion-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$buildNumber = "$moduleVersion.$(Get-Date -Format 'yyyyMMddHHmmss')"
 
 Write-Host "##vso[task.setvariable variable=moduleversion]${moduleVersion}"
 Write-Host "##vso[build.updatebuildnumber]${buildNumber}"
