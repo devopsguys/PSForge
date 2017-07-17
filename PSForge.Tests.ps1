@@ -15,7 +15,7 @@ InModuleScope PSForge {
             Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
             It "Should detect Windows installation" {
                 getOSPlatform | should be "windows"
-                isWindows | should be $True
+                isWindows | should be $False
                 isUnix | should be $False
             }
         }
