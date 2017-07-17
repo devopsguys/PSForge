@@ -1,5 +1,3 @@
-
-
 if([Environment]::OSVersion.Platform -eq "Unix"){
     $env:PSModulePath = "${PWD}/packages:" + $env:PSModulePath
     if(-not (Test-Path .\paket\paket.exe)){
@@ -24,4 +22,6 @@ $buildNumber = "$moduleVersion-$(Get-Date -Format 'yyyyMMddHHmmss')"
 Write-Host "##vso[task.setvariable variable=moduleversion]${moduleVersion}"
 Write-Host "##vso[build.updatebuildnumber]${buildNumber}"
 
-Invoke-Pester -Path .\PSForge.Tests.ps1 -CodeCoverage .\PSForge.psm1 -OutputFormat NUnitXml -OutputFile TestResults.xml -CodeCoverageOutputFile coverage.xml -PassThru
+$result = Invoke-Pester -Path .\PSForge.Tests.ps1 -CodeCoverage .\PSForge.psm1 -OutputFormat NUnitXml -OutputFile TestResults.xml -CodeCoverageOutputFile coverage.xml -PassThru
+
+Exit $result.FailedCount
