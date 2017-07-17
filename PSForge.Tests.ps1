@@ -16,7 +16,7 @@ InModuleScope PSForge {
             It "Should detect Windows installation" {
                 getOSPlatform | should be "windows"
                 isWindows | should be $False
-                isUnix | should be $False
+                isUnix | should be $True
             }
         }
 
