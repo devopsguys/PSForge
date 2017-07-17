@@ -24,4 +24,4 @@ $buildNumber = "$moduleVersion-$(Get-Date -Format 'yyyyMMddHHmmss')"
 Write-Host "##vso[task.setvariable variable=moduleversion]${moduleVersion}"
 Write-Host "##vso[build.updatebuildnumber]${buildNumber}"
 
-Invoke-Pester -Path .\PSForge.Tests.ps1 -CodeCoverage .\PSForge.psm1 -OutputFormat NUnitXml -OutputFile TestResults.xml -CodeCoverageOutputFile coverage.xml -PassThru
+Invoke-Pester -Path .\PSForge.Tests.ps1 -CodeCoverage .\PSForge.psm1 -OutputFormat NUnitXml -OutputFile TestResults.xml -CodeCoverageOutputFile coverage.xml -PassThru -EnableExit
