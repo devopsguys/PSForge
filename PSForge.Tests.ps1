@@ -183,6 +183,7 @@ InModuleScope PSForge {
 
         It "Should execute Paket with mono on Unix" {
             Mock Invoke-Expression { } -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Scope It
+            Mock Invoke-Expression { "linux" } -ParameterFilter { $Command -eq "uname" } -Scope It
             Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }} -Scope It
             Invoke-Paket
             Assert-MockCalled Invoke-Expression -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Exactly 1 -Scope It
