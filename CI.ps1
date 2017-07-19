@@ -1,9 +1,11 @@
-nuget install -ExcludeVersion
+
 
 if([Environment]::OSVersion.Platform -eq "Unix"){
     $env:PSModulePath = "${PWD}/packages:" + $env:PSModulePath
+    mono .nuget/nuget.exe install -ExcludeVersion
 }else{
     $env:PSModulePath = "${PWD}\packages;" + $env:PSModulePath
+    .nuget\nuget.exe install -ExcludeVersion
 }
 
 Import-Module .\PSForge.psm1
