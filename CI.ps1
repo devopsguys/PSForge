@@ -1,15 +1,9 @@
+nuget install -ExcludeVersion
+
 if([Environment]::OSVersion.Platform -eq "Unix"){
     $env:PSModulePath = "${PWD}/packages:" + $env:PSModulePath
-    if(-not (Test-Path .\paket\paket.exe)){
-        mono .\paket\paket.bootstrapper.exe
-    }
-    mono .\paket\paket.exe restore
 }else{
     $env:PSModulePath = "${PWD}\packages;" + $env:PSModulePath
-    if(-not (Test-Path .\paket\paket.exe)){
-        .\paket\paket.bootstrapper.exe
-    }
-    .\paket\paket.exe restore
 }
 
 Import-Module .\PSForge.psm1
