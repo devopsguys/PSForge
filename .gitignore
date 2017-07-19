@@ -5,5 +5,5 @@ paket/paket.targets
 *.nupkg
 .vagrant
 ruby-*/
-coverage.xml
-TestResults.xml
+coverage-*.xml
+TestResults-*.xml
