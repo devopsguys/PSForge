@@ -178,6 +178,7 @@ function Invoke-Paket
 
 function New-DSCModule
 {
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]    
 param(
     [Parameter(Mandatory=$True,Position=1)]
     [string]$ModuleName,
@@ -220,6 +221,7 @@ param(
 
 function New-DSCResource
 {
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
 param(
     [Parameter(Mandatory=$True,Position=1)]
     [string]$ResourceName
@@ -307,6 +309,7 @@ param (
         $prompt = Read-Host "Input your Azure Subscription ID [$($defaultValue)]"
         $prompt = ($defaultValue,$prompt)[[bool]$prompt]
 
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
         $env:AZURERM_SUBSCRIPTION = $prompt
     }
 
@@ -341,6 +344,7 @@ function Get-DSCModuleGlobalConfig
 
 function Set-DSCModuleGlobalConfig
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     param (
         [parameter(Mandatory = $true,Position=1)]
         [string] $Key,
