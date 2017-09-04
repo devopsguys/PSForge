@@ -16,6 +16,29 @@ param(
 
 }
 
+function Invoke-ExternalCommand {
+Param(
+    [Parameter(Mandatory=$True,Position=1)]
+    $command,
+    [Parameter(Mandatory=$False,Position=2)]
+    $arguments
+)
+    
+    # Reset $result in case it's used somewhere else
+    $result = $null
+
+    # Reset $LASTEXITCODE in case it was tripped somewhere
+    $Global:LASTEXITCODE = 0
+
+    $result = & $command $arguments  
+
+    if ($LASTEXITCODE -ne 0) {
+        Throw "Something bad happened while executing $command. Details: $($result | Out-String)"
+    }
+
+    return $result
+}
+
 function getEnvironmentOSVersion{
     return [Environment]::OSVersion
 }
@@ -66,7 +89,7 @@ function checkDependencies
         throw New-Object System.Exception ("PSForge has a dependency on 'git' - please install git via the system package manager.")
     }
 
-    [string]$longRubyVersion = (Invoke-Expression "ruby --version").split(' ')[1]
+    [string]$longRubyVersion = (Invoke-ExternalCommand "ruby" @("--version")).split(' ')[1]
     [double]$shortRubyVersion = ($longRubyVersion.split('.')[0,1]) -join '.'
 
     if($shortRubyVersion -lt 2.3)
@@ -101,7 +124,7 @@ param(
 function getProjectRoot
 {
 
-    $projectRoot = Invoke-Expression "git rev-parse --show-toplevel"
+    $projectRoot = Invoke-ExternalCommand "git" @("rev-parse", "--show-toplevel")
 
     if(-Not (Test-Path $projectRoot))
     {
@@ -116,14 +139,14 @@ function updateBundle{
 
     if(-not (isOnPath "bundler"))
     {
-        Invoke-Expression "gem install bundler" | Out-Null
+        Invoke-ExternalCommand "gem" @("install", "bundler") | Out-Null
     }
 
     $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput stdout -PassThru
     Remove-Item stdout
     if($bundle.Exitcode -ne 0)
     {
-        Invoke-Expression "bundle install --path .bundle"
+        Invoke-ExternalCommand "bundle" @("install","--path", ".bundle")
     }
 }
 
@@ -144,9 +167,7 @@ function Invoke-Paket
         $paketBin = "mono .paket\paket.exe"
     }
 
-    $commandArgs = $args -join " "
-
-    Invoke-Expression "$paketBin $commandArgs".TrimEnd()
+    Invoke-ExternalCommand $paketBin $args
 
     clearPaketFiles
 
@@ -291,17 +312,17 @@ param (
         $env:AZURERM_SUBSCRIPTION = $prompt
     }
 
-    $KitchenParams = $Action
+    $KitchenParams = @($Action)
 
     if($Debug)
     {
-        $KitchenParams += " --log-level Debug"
+        $KitchenParams += @("--log-level","Debug")
     }
 
     updateBundle
 
     Invoke-Paket update
-    Invoke-Expression "bundle exec kitchen ${KitchenParams}"
+    Invoke-ExternalCommand "bundle" (@("exec", "kitchen") + ${KitchenParams})
 
     Pop-Location
 
@@ -380,7 +401,7 @@ function BootstrapDSCModule
     if(!(Test-Path ".\.git"))
     {
         Write-Progress -Activity $Activity -Status "Initialising local Git repository" -percentComplete 60
-        Invoke-Expression "git init" | Out-Null
+        Invoke-ExternalCommand "git" @("init") | Out-Null
     }
 
     Write-Progress -Activity $Activity -percentComplete 100 -Completed
@@ -405,11 +426,11 @@ function generatePaketFiles
     {
         if(isWindows)
         {
-            Invoke-Expression ".\paket.bootstrapper.exe"
+            Invoke-ExternalCommand ".\paket.bootstrapper.exe"
         }
         else
         {
-            Invoke-Expression "mono .\paket.bootstrapper.exe"
+            Invoke-ExternalCommand  "mono" @(".\paket.bootstrapper.exe")
         }
     }
     Pop-Location
