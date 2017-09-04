@@ -8,6 +8,7 @@ if([Environment]::OSVersion.Platform -eq "Unix"){
     .nuget\nuget.exe install -ExcludeVersion
 }
 
+Remove-Module PSForge
 Import-Module .\PSForge.psm1
 
 Import-LocalizedData -BaseDirectory "." -FileName "PSForge.psd1" -BindingVariable metadata

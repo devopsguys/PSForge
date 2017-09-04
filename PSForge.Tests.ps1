@@ -20,24 +20,11 @@ InModuleScope PSForge {
             }
         }
 
-        Context "Linux" {
+        Context "Unix" {
             Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
             
-            Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
-            It "Should detect Linux installation" {
-                getOSPlatform | should be "linux"
-                isWindows | should be $False
-                isUnix | should be $True
-                Assert-VerifiableMocks
-            }
-        }
-
-        Context "MacOS" {
-            Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
-            
-            Mock Invoke-Expression { "Darwin" } -Verifiable -ParameterFilter {$Command -eq "uname"}
-            It "Should detect Linux installation" {
-                getOSPlatform | should be "mac"
+            It "Should detect Unix installation" {
+                getOSPlatform | should be "unix"
                 isWindows | should be $False
                 isUnix | should be $True
                 Assert-VerifiableMocks

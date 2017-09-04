@@ -16,44 +16,22 @@ param(
 
 }
 
-function getEnvironmentOSVersion
-{
+function getEnvironmentOSVersion{
     return [Environment]::OSVersion
 }
 
-function getOSPlatform
-{
-
-    $osPlatform = (getEnvironmentOSVersion).Platform
-
-    if($osPlatform -like "Win*")
-    {
-        return "windows"
-    }
-
-    if($osPlatform -eq "Unix")
-    {
-        $uname = Invoke-Expression "uname"
-        if($uname -eq "Darwin")
-        {
-            return "mac"
-        }
-
-        return ($uname).toLower()
-    }
-
-    return "unknown"
-
+function getOSPlatform{
+    return (getEnvironmentOSVersion).Platform
 }
 
 function isWindows
 {
-    return ((getOSPlatform) -eq "windows")
+    return (getOSPlatform) -like "Win*"
 }
 
 function isUnix
 {
-    return (@("linux","mac","freebsd","sunos","openbsd")).contains((getOSPlatform))
+    return (getOSPlatform) -eq "Unix"
 }
 
 function isOnPath
