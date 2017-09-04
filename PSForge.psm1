@@ -407,9 +407,9 @@ function BootstrapDSCModule
 
 function clearPaketFiles
 {
-    Remove-Item -Recurse .paket -ErrorAction SilentlyContinue
-    Remove-Item paket.dependencies -ErrorAction SilentlyContinue
-    Remove-Item paket.template -ErrorAction SilentlyContinue
+    Remove-Item -Recurse -Force .paket -ErrorAction SilentlyContinue
+    Remove-Item -Force paket.dependencies -ErrorAction SilentlyContinue
+    Remove-Item -Force paket.template -ErrorAction SilentlyContinue
 }
 
 function generatePaketFiles
