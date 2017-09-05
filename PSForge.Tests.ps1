@@ -1,8 +1,57 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 
-InModuleScope PSForge {
 
+InModuleScope PSForge {
+    # http://www.indented.co.uk/2014/04/02/compare-array/
+    function Compare-Array {
+        param(
+            [Parameter(Mandatory = $true)]
+            [Object[]]$Subject,
+        
+            [Parameter(Mandatory = $true)]
+            [Object[]]$Object,
+            
+            [Switch]$ManualLoop,
+            
+            [Switch]$Sort
+        )
+        
+        if ($ManualLoop) {
+            # If the arrays are not the same length they cannot be equal.
+            if ($Subject.Length -ne $Object.Length) {
+            return $false
+            }
+            
+            # If Sort is set and the arrays are of equal length ensure both arrays are similarly ordered.
+            if ($Sort) {
+            $Subject = $Subject | Sort-Object
+            $Object = $Object | Sort-Object
+            }
+            
+            $Length = $Subject.Length
+            $Equal = $true
+            for ($i = 0; $i -lt $Length; $i++) {
+            # Exit when the first match fails.
+            if ($Subject[$i] -ne $Object[$i]) {
+                return $false
+            }
+            }
+            return $true
+        } else {
+            # If Sort is set and the arrays are of equal length ensure both arrays are similarly ordered.
+            if ($Sort) {
+            $Subject = $Subject | Sort-Object
+            $Object = $Object | Sort-Object
+            }
+        
+            ([Collections.IStructuralEquatable]$Subject).Equals(
+            $Object,
+            [Collections.StructuralComparisons]::StructuralEqualityComparer
+            )
+        }
+    }
+        
     # Describe "PSForge" {
     #     It "PSForge is available to be imported when called" {
     #         Get-Module  –ListAvailable | where { $_.Name –eq 'PSForge' } | should not be $null  
@@ -298,13 +347,29 @@ dependencies
     Describe "getProjectRoot" {
         Mock Invoke-ExternalCommand { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-win32]"} -ParameterFilter { $Command -eq "ruby" -and $Arguments -eq @("--version")}
         
-        Mock Invoke-ExternalCommand { return "/fake-path" } -ParameterFilter { $Command -eq "git" }
+        Mock Invoke-ExternalCommand { return "/fake-path" } -ParameterFilter { $Command -eq "git" -and (Compare-Array $Arguments @("rev-parse", "--show-toplevel"))}
         Mock Test-Path { return $True } -ParameterFilter { $Path -eq "/fake-path" }
        
         It "Should output the git root" {
             getProjectRoot | should -eq "/fake-path"
         }
 
+    }
+
+    Describe "Export-DSCModule" {
+        $version = "1.0.0"
+        Mock Push-Location {}
+        Mock Pop-Location {}
+        Mock BootstrapDSCModule {}
+        # Mock Invoke-Paket {}
+        Mock Invoke-Paket {} -ParameterFilter { $args -eq "update" } -Verifiable
+        Mock Invoke-Paket {} -ParameterFilter { Compare-Array $args @("pack", "output", ".\output", "version", $version) } -Verifiable
+
+        Export-DSCModule $version
+        It "Should update dependencies and export a nuget package" {
+            Assert-VerifiableMocks
+        }
+       
     }
 
 }
