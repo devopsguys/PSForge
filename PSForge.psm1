@@ -1,8 +1,3 @@
-if((get-module | Where-Object { $_.Name -eq "Plaster" }).Count -eq 0)
-{
-    Import-Module Plaster
-}
-
 function addToPath
 {
 param(
