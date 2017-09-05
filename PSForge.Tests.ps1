@@ -39,12 +39,10 @@ InModuleScope PSForge {
             
             It "Should throw exception if Mono not installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
-                Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
                 
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
-                Mock Invoke-Expression { "ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
                  
                 { CheckDependencies } | Should Throw "PSForge has a dependency on 'mono' on Linux and MacOS - please install mono via the system package manager."
             }
@@ -54,7 +52,6 @@ InModuleScope PSForge {
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
-                Mock Invoke-Expression { "ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
             
                 { CheckDependencies } | Should not Throw
             }
@@ -68,7 +65,6 @@ InModuleScope PSForge {
 
             It "Should throw exception if Ruby not installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
-                Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
                 
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
@@ -89,12 +85,11 @@ InModuleScope PSForge {
 
             It "Should throw exception if wrong Ruby installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
-                Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
 
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
-                Mock Invoke-Expression { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
+                Mock Invoke-ExternalCommand { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby" -and $Arguments -eq @("--version") }
                 
                 { CheckDependencies } | Should Throw $rubyVersionException
             }
@@ -105,7 +100,7 @@ InModuleScope PSForge {
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
-                Mock Invoke-Expression { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
+                Mock Invoke-ExternalCommand { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-win32]"} -ParameterFilter { $Command -eq "ruby" -and $Arguments -eq @("--version")}
                 
                 { CheckDependencies } | Should Throw $rubyVersionException
             }
@@ -118,14 +113,11 @@ InModuleScope PSForge {
 
             It "Should throw exception if Git not installed on Unix" {
                 Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }}
-                Mock Invoke-Expression { "Linux" } -Verifiable -ParameterFilter {$Command -eq "uname"}
                 
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
-                Mock Invoke-Expression { "ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
                 
-
                 { CheckDependencies } | Should Throw $gitException
             }
 
@@ -135,8 +127,7 @@ InModuleScope PSForge {
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "mono" }
                 Mock isOnPath { $False } -ParameterFilter { $cmd -eq "git" }
                 Mock isOnPath { $True } -ParameterFilter { $cmd -eq "ruby" }
-                Mock Invoke-Expression { "ruby 2.3.3p222 (2016-11-21 revision 56859) [x86_64-darwin16]"} -ParameterFilter { $Command -eq "ruby --version" }
-                
+
                 { CheckDependencies } | Should Throw $gitException
             }
         
@@ -148,7 +139,7 @@ InModuleScope PSForge {
         Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }}
         Mock generatePaketFiles {}
         Mock getProjectRoot {}
-        Mock Invoke-Expression {} -ParameterFilter { $Command -eq ".paket\paket.exe" }
+        Mock Invoke-ExternalCommand {} -ParameterFilter { $Command -eq ".paket\paket.exe" }
         Mock clearPaketFiles {}
         Mock Test-Path { $True } -ParameterFilter { $Path -eq ".\.paket\paket.exe" }
         Mock BootstrapDSCModule {}
@@ -169,18 +160,18 @@ InModuleScope PSForge {
         }
 
         It "Should execute Paket with mono on Unix" {
-            Mock Invoke-Expression { } -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Scope It
-            Mock Invoke-Expression { "linux" } -ParameterFilter { $Command -eq "uname" } -Scope It
+            Mock Invoke-ExternalCommand { } -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Scope It
+            Mock Invoke-ExternalCommand { "linux" } -ParameterFilter { $Command -eq "uname" } -Scope It
             Mock getEnvironmentOSVersion { @{"Platform" = "Unix" }} -Scope It
             Invoke-Paket
-            Assert-MockCalled Invoke-Expression -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Exactly 1 -Scope It
+            Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Exactly 1 -Scope It
         }
 
         It "Should execute Paket directly on Windows" {
-            Mock Invoke-Expression {} -ParameterFilter { $Command -eq ".paket\paket.exe" } -Scope It
+            Mock Invoke-ExternalCommand {} -ParameterFilter { $Command -eq ".paket\paket.exe" } -Scope It
             Mock getEnvironmentOSVersion { @{"Platform" = "Windows" }} -Scope It
             Invoke-Paket
-            Assert-MockCalled Invoke-Expression -ParameterFilter { $Command -eq ".paket\paket.exe" } -Exactly 1 -Scope It
+            Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq ".paket\paket.exe" } -Exactly 1 -Scope It
         }
 
     }
