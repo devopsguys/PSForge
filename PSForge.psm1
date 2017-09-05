@@ -148,6 +148,7 @@ function Invoke-Paket
 
     Push-Location "$(getProjectRoot)"
     
+    BootstrapPaket
     BootstrapDSCModule
     generatePaketFiles
 
@@ -373,6 +374,23 @@ function CheckUserConfig
     }
 }
 
+function BootstrapPaket
+{
+    Push-Location "$PSScriptRoot\paket"
+    if(-not (Test-Path ".\paket.exe"))
+    {
+        if(isWindows)
+        {
+            Invoke-ExternalCommand ".\paket.bootstrapper.exe"
+        }
+        else
+        {
+            Invoke-ExternalCommand  "mono" @(".\paket.bootstrapper.exe")
+        }
+    }
+    Pop-Location
+}
+
 function BootstrapDSCModule
 {
 
@@ -408,32 +426,28 @@ function clearPaketFiles
     Remove-Item -Force paket.template -ErrorAction SilentlyContinue
 }
 
+function GetModuleManifest
+{
+    Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable moduleManifest
+    return $moduleManifest
+}
+function GetDependenciesManifest
+{
+    Import-LocalizedData -BaseDirectory "." -FileName "dependencies.psd1" -BindingVariable dependenciesManifest
+    return $dependenciesManifest
+}
 function generatePaketFiles
 {
     $ModuleName = (Get-Item -Path ".\" -Verbose).BaseName
-    Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable moduleManifest
-    Import-LocalizedData -BaseDirectory "." -FileName "dependencies.psd1" -BindingVariable dependenciesManifest
-
-    Push-Location "$PSScriptRoot\paket"
-    if(-not (Test-Path ".\paket.exe"))
-    {
-        if(isWindows)
-        {
-            Invoke-ExternalCommand ".\paket.bootstrapper.exe"
-        }
-        else
-        {
-            Invoke-ExternalCommand  "mono" @(".\paket.bootstrapper.exe")
-        }
-    }
-    Pop-Location
-
+    
     clearPaketFiles
 
-    Copy-Item -Recurse $PSScriptRoot\paket .\.paket | Out-Null
+    $moduleManifest = GetModuleManifest
+    $dependenciesManifest = GetDependenciesManifest
 
-    New-Item paket.dependencies | Out-Null
-    New-Item paket.template | Out-Null
+    New-Item -Path "paket.dependencies" | Out-Null    
+
+    Copy-Item -Recurse $PSScriptRoot\paket .\.paket | Out-Null
 
     ForEach($nugetFeed in $dependenciesManifest.NugetFeeds)
     {

@@ -147,6 +147,12 @@ InModuleScope PSForge {
         Mock clearPaketFiles {}
         Mock Test-Path { $True } -ParameterFilter { $Path -eq ".\.paket\paket.exe" }
         Mock BootstrapDSCModule {}
+        Mock BootstrapPaket {}
+
+        It "Should bootstrap Paket executable" {
+            Invoke-Paket
+            Assert-MockCalled BootstrapPaket -Exactly 1 -Scope It
+        }
 
         It "Should run Bootstrap by default" {
             Invoke-Paket
@@ -164,20 +170,42 @@ InModuleScope PSForge {
         }
 
         It "Should execute Paket with mono on Unix" {
-            Mock getOSPlatform { "unix" } -Scope It
-            Mock Invoke-ExternalCommand { } -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Scope It
-            Mock Invoke-ExternalCommand { "linux" } -ParameterFilter { $Command -eq "uname" } -Scope It
+            Mock getOSPlatform { "unix" }
+            Mock Invoke-ExternalCommand { } -ParameterFilter { $Command -eq "mono .paket\paket.exe" } 
+            Mock Invoke-ExternalCommand { "linux" } -ParameterFilter { $Command -eq "uname" } 
             Invoke-Paket
             Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Exactly 1 -Scope It
         }
 
         It "Should execute Paket directly on Windows" {
-            Mock getOSPlatform { "windows" } -Scope It
-            Mock Invoke-ExternalCommand {} -ParameterFilter { $Command -eq ".paket\paket.exe" } -Scope It
+            Mock getOSPlatform { "windows" } 
+            Mock Invoke-ExternalCommand {} -ParameterFilter { $Command -eq ".paket\paket.exe" } 
             Invoke-Paket
             Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq ".paket\paket.exe" } -Exactly 1 -Scope It
         }
 
+    }
+
+    Describe "generatePaketFiles" {
+        
+        Mock GetModuleManifest {}
+        Mock GetDependenciesManifest {}
+        
+        Mock clearPaketFiles {}
+        Mock New-Item {}
+        Mock Copy-Item {} 
+        Mock Out-File {}
+        
+        generatePaketFiles
+        
+        it "Should create a paket.dependencies file" {
+            Assert-MockCalled New-Item -ParameterFilter { $Path -eq "paket.dependencies"} -Exactly 1 -Scope Describe
+        }
+         
+        it "Should copy paket executables over" {
+            Assert-MockCalled Copy-Item -Exactly 1 -Scope Describe
+        }
+                                            
     }
 
 }
