@@ -5,10 +5,16 @@ function addToPath
 param(
     [string]$path
 )
+    $delimiter = ";"
 
-    if(-not ($env:PATH -split ";") -contains $path)
+    if(isUnix)
     {
-        $env:PATH = $path,$env:PATH -join ";"
+        $delimiter = ":"
+    }
+
+    if(-not (($env:PATH -split $delimiter) -contains $path))
+    {
+        $env:PATH = $path,$env:PATH -join $delimiter
     }
 
 }

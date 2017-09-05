@@ -39,6 +39,27 @@ InModuleScope PSForge {
 
     Describe "Dependency checking"{
 
+        Context "Windows" {
+            Mock getOSPlatform { return "windows"}
+
+            It "Should be able to add to the PATH variable" {
+                $PATH = $env:PATH
+                addToPath "test"
+                $env:PATH | should -BeLike "test;*"
+            }
+        }
+       
+
+        Context "Unix" {
+            Mock getOSPlatform { return "unix"}
+
+            It "Should be able to add to the PATH variable" {
+                $PATH = $env:PATH
+                addToPath "test"
+                $env:PATH | should -BeLike "test:*"
+            }
+        }
+
         Context "Mono is not installed" {
             
             It "Should throw exception if Mono not installed on Unix" {
