@@ -5,51 +5,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 InModuleScope PSForge {
     # http://www.indented.co.uk/2014/04/02/compare-array/
     function Compare-Array {
-        param(
-            [Parameter(Mandatory = $true)]
-            [Object[]]$Subject,
-        
-            [Parameter(Mandatory = $true)]
-            [Object[]]$Object,
-            
-            [Switch]$ManualLoop,
-            
-            [Switch]$Sort
-        )
-        
-        if ($ManualLoop) {
-            # If the arrays are not the same length they cannot be equal.
-            if ($Subject.Length -ne $Object.Length) {
-            return $false
-            }
-            
-            # If Sort is set and the arrays are of equal length ensure both arrays are similarly ordered.
-            if ($Sort) {
-            $Subject = $Subject | Sort-Object
-            $Object = $Object | Sort-Object
-            }
-            
-            $Length = $Subject.Length
-            $Equal = $true
-            for ($i = 0; $i -lt $Length; $i++) {
-            # Exit when the first match fails.
-            if ($Subject[$i] -ne $Object[$i]) {
-                return $false
-            }
-            }
-            return $true
-        } else {
-            # If Sort is set and the arrays are of equal length ensure both arrays are similarly ordered.
-            if ($Sort) {
-            $Subject = $Subject | Sort-Object
-            $Object = $Object | Sort-Object
-            }
-        
-            ([Collections.IStructuralEquatable]$Subject).Equals(
-            $Object,
-            [Collections.StructuralComparisons]::StructuralEqualityComparer
-            )
-        }
+        $($args[0] -join ",") -eq $($args[1] -join ",")
     }
         
     # Describe "PSForge" {
@@ -358,10 +314,10 @@ dependencies
 
     Describe "Export-DSCModule" {
         $version = "1.0.0"
-        Mock Push-Location {}
-        Mock Pop-Location {}
-        Mock BootstrapDSCModule {}
-        # Mock Invoke-Paket {}
+        Mock getProjectRoot {return "a" }
+        Mock Push-Location {} -ParameterFilter { $path -eq "a" } -Verifiable
+        Mock Pop-Location {} -Verifiable
+        Mock BootstrapDSCModule {} -Verifiable
         Mock Invoke-Paket {} -ParameterFilter { $args -eq "update" } -Verifiable
         Mock Invoke-Paket {} -ParameterFilter { Compare-Array $args @("pack", "output", ".\output", "version", $version) } -Verifiable
 
@@ -370,6 +326,6 @@ dependencies
             Assert-VerifiableMocks
         }
        
-    }
+    } 
 
 }
