@@ -356,7 +356,7 @@ function CheckUserConfig
 
     if(!$config.username)
     {
-        $defaultValue = $ENV:USERNAME
+        $defaultValue = [Environment]::UserName
         $username = Read-Host "What is your username? [$($defaultValue)]"
         $username = ($defaultValue,$username)[[bool]$username]
         Set-DSCModuleGlobalConfig "username" "$username"
