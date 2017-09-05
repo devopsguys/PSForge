@@ -8,9 +8,10 @@ if([Environment]::OSVersion.Platform -eq "Unix"){
     .nuget\nuget.exe install -ExcludeVersion
 }
 
+Remove-Module Pester -ErrorAction SilentlyContinue
 Remove-Module PSForge -ErrorAction SilentlyContinue
 Import-Module .\PSForge.psm1
-Import-Module Pester
+Import-Module .\packages\Pester\Pester.psd1
 
 Import-LocalizedData -BaseDirectory "." -FileName "PSForge.psd1" -BindingVariable metadata
 
@@ -20,6 +21,6 @@ $buildNumber = "$moduleVersion-$(Get-Date -Format 'yyyyMMddHHmmss')"
 Write-Host "##vso[task.setvariable variable=moduleversion]${moduleVersion}"
 Write-Host "##vso[build.updatebuildnumber]${buildNumber}"
 
-$result = Invoke-Pester -Path .\PSForge.Tests.ps1 -CodeCoverage .\PSForge.psm1 -OutputFormat NUnitXml -OutputFile TestResults.xml -CodeCoverageOutputFile coverage.xml -PassThru
+$result = Invoke-Pester -Path .\PSForge.Tests.ps1 -OutputFormat NUnitXml -OutputFile TestResults.xml -PassThru # -CodeCoverage .\PSForge.psm1 -CodeCoverageOutputFile coverage.xml 
 
 Exit $result.FailedCount
