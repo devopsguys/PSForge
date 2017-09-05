@@ -188,8 +188,13 @@ InModuleScope PSForge {
 
     Describe "generatePaketFiles" {
         
+        $dependenciesManifest = @{
+            "NugetFeeds" = @("http://nuget.org/api/v2","http://powershellgallery.com/api/v2");
+            "NugetPackages" = @("package1 == 1.0.0.0","package2 == 2.0.0.0")
+        }
+
         Mock GetModuleManifest {}
-        Mock GetDependenciesManifest {}
+        Mock GetDependenciesManifest { return $dependenciesManifest }
         
         Mock clearPaketFiles {}
         Mock New-Item {}
@@ -204,6 +209,16 @@ InModuleScope PSForge {
          
         it "Should copy paket executables over" {
             Assert-MockCalled Copy-Item -Exactly 1 -Scope Describe
+        }
+
+        it "Should add nuget feeds to paket.dependencies" {
+            Assert-MockCalled Out-File -ParameterFilter { $InputObject -eq "source http://nuget.org/api/v2" } -Exactly 1 -Scope Describe
+            Assert-MockCalled Out-File -ParameterFilter { $InputObject -eq "source http://powershellgallery.com/api/v2" } -Exactly 1 -Scope Describe
+        }
+
+        it "Should add nuget feeds to paket.dependencies" {
+            Assert-MockCalled Out-File -ParameterFilter { $InputObject -eq "nuget package1 == 1.0.0.0" } -Exactly 1 -Scope Describe
+            Assert-MockCalled Out-File -ParameterFilter { $InputObject -eq "nuget package2 == 2.0.0.0" } -Exactly 1 -Scope Describe
         }
                                             
     }
