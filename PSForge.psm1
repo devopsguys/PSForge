@@ -36,12 +36,8 @@ Param(
     return $result
 }
 
-function getEnvironmentOSVersion{
-    return [Environment]::OSVersion
-}
-
 function getOSPlatform{
-    return (getEnvironmentOSVersion).Platform
+    return [Environment]::OSVersion.Platform
 }
 
 function isWindows
