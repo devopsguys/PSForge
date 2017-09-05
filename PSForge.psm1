@@ -426,6 +426,10 @@ function clearPaketFiles
     Remove-Item -Force paket.template -ErrorAction SilentlyContinue
 }
 
+function GetModuleName{
+    return (Get-Item -Path ".\" -Verbose).BaseName
+}
+
 function GetModuleManifest
 {
     Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable moduleManifest
@@ -436,9 +440,33 @@ function GetDependenciesManifest
     Import-LocalizedData -BaseDirectory "." -FileName "dependencies.psd1" -BindingVariable dependenciesManifest
     return $dependenciesManifest
 }
+
+function GeneratePaketTemplate {
+param (
+    [Parameter(Mandatory=$True,Position=1)]
+    $moduleName,
+    [Parameter(Mandatory=$True,Position=2)]
+    $moduleManifest
+)
+
+    return `
+@"
+type file
+id ${ModuleName}
+version $($moduleManifest.ModuleVersion)
+authors $($moduleManifest.Author)
+description
+    $($moduleManifest.Description)
+files
+    ${ModuleName}.psd1 ==> .
+    DSCResources ==> DSCResources
+dependencies
+"@ 
+
+}
 function generatePaketFiles
 {
-    $ModuleName = (Get-Item -Path ".\" -Verbose).BaseName
+    $ModuleName = GetModuleName
     
     clearPaketFiles
 
@@ -459,18 +487,8 @@ function generatePaketFiles
         "nuget $nugetPackage" | Out-File paket.dependencies -Append -Encoding utf8
     }
 
-@"
-type file
-id ${ModuleName}
-version $($moduleManifest.ModuleVersion)
-authors $($moduleManifest.Author)
-description
-    $($moduleManifest.Description)
-files
-   ${ModuleName}.psd1 ==> .
-   DSCResources ==> DSCResources
-dependencies
-"@ | Out-File  paket.template -Append -Encoding utf8
+    GeneratePaketTemplate $moduleName $moduleManifest
+    GeneratePaketTemplate $moduleName $moduleManifest | Out-File  paket.template -Append -Encoding utf8
 
     ForEach($nugetPackage in $dependenciesManifest.NugetPackages)
     {

@@ -188,12 +188,19 @@ InModuleScope PSForge {
 
     Describe "generatePaketFiles" {
         
-        $dependenciesManifest = @{
-            "NugetFeeds" = @("http://nuget.org/api/v2","http://powershellgallery.com/api/v2");
-            "NugetPackages" = @("package1 == 1.0.0.0","package2 == 2.0.0.0")
+        $moduleManifest = @{
+            "ModuleVersion" = "1.0.0";
+            "Author" = "Edmund Dipple";
+            "Description" = "Test Module";
         }
 
-        Mock GetModuleManifest {}
+        $dependenciesManifest = @{
+            "NugetFeeds" = @("http://nuget.org/api/v2","http://powershellgallery.com/api/v2");
+            "NugetPackages" = @("package1 == 1.0.0.0","package2 == 2.0.0.0");
+        }
+
+        Mock GetModuleName { return "TestModule" }
+        Mock GetModuleManifest {return $moduleManifest}
         Mock GetDependenciesManifest { return $dependenciesManifest }
         
         Mock clearPaketFiles {}
@@ -220,7 +227,25 @@ InModuleScope PSForge {
             Assert-MockCalled Out-File -ParameterFilter { $InputObject -eq "nuget package1 == 1.0.0.0" } -Exactly 1 -Scope Describe
             Assert-MockCalled Out-File -ParameterFilter { $InputObject -eq "nuget package2 == 2.0.0.0" } -Exactly 1 -Scope Describe
         }
-                                            
+
+        it "Should set up the paket.template file" {
+            $paketTemplateString = `
+@"
+type file
+id TestModule
+version 1.0.0
+authors Edmund Dipple
+description
+    Test Module
+files
+    TestModule.psd1 ==> .
+    DSCResources ==> DSCResources
+dependencies
+"@
+            GeneratePaketTemplate "TestModule" $moduleManifest | should -eq $paketTemplateString
+            Assert-MockCalled Out-File -ParameterFilter { $InputObject -eq $paketTemplateString } -Exactly 1 -Scope Describe
+        }
+                              
     }
 
 }
