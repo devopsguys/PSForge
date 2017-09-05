@@ -295,4 +295,16 @@ dependencies
         
     }
 
+    Describe "getProjectRoot" {
+        Mock Invoke-ExternalCommand { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-win32]"} -ParameterFilter { $Command -eq "ruby" -and $Arguments -eq @("--version")}
+        
+        Mock Invoke-ExternalCommand { return "/fake-path" } -ParameterFilter { $Command -eq "git" }
+        Mock Test-Path { return $True } -ParameterFilter { $Path -eq "/fake-path" }
+       
+        It "Should output the git root" {
+            getProjectRoot | should -eq "/fake-path"
+        }
+
+    }
+
 }
