@@ -269,4 +269,16 @@ dependencies
                               
     }
 
+    Describe "clearPaketFiles" {
+        Mock Remove-Item {}
+
+        clearPaketFiles
+
+        It "Should remove all paket files" {
+            Assert-MockCalled Remove-Item -ParameterFilter { $Path -eq ".paket" -and $Recurse -eq $True } -Exactly 1 -Scope Describe
+            Assert-MockCalled Remove-Item -ParameterFilter { $Path -eq "paket.template" } -Exactly 1 -Scope Describe
+            Assert-MockCalled Remove-Item -ParameterFilter { $Path -eq "paket.dependencies" } -Exactly 1 -Scope Describe
+        }
+    }
+
 }
