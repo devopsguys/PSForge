@@ -1,3 +1,5 @@
+Import-Module Plaster
+
 function addToPath
 {
 param(
