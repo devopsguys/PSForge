@@ -111,15 +111,6 @@ function installRuby
     Remove-Item $rubyInstaller
 }
 
-function isProjectRoot
-{
-param(
-    [Parameter(Mandatory=$True,Position=1)]
-    [string]$path
-)
-    return Test-Path "${path}\.git"
-}
-
 function getProjectRoot
 {
 
