@@ -51,6 +51,7 @@ InModuleScope PSForge {
                 $PATH = $env:PATH
                 addToPath "test"
                 $env:PATH | should -BeLike "test;*"
+                $env:PATH = $PATH
             }
         }
        
@@ -62,6 +63,7 @@ InModuleScope PSForge {
                 $PATH = $env:PATH
                 addToPath "test"
                 $env:PATH | should -BeLike "test:*"
+                $env:PATH = $PATH
             }
         }
 
@@ -373,6 +375,31 @@ dependencies
 
         }
         
+    }
+
+    Describe "BootstrapPaket" {
+        Mock Push-Location {} 
+        Mock Pop-Location {}
+        Mock Test-Path { $False } -ParameterFilter { $Path -eq ".\paket.exe" }
+        Mock Invoke-ExternalCommand {}
+
+        Context "Windows" {
+            It "Runs the paket bootrapper natively on Windows" {
+                Mock isWindows { $True }
+                BootstrapPaket
+                Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq ".\paket.bootstrapper.exe" } -Exactly 1
+                Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq "mono" -and $Arguments -eq @(".\paket.bootstrapper.exe")} -Exactly 0
+            }
+        }
+
+        Context "Unix" {
+            It "Runs the paket bootrapper using Mono on Unix" {
+                Mock isWindows { $False }
+                BootstrapPaket
+                Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq ".\paket.bootstrapper.exe" } -Exactly 0
+                Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq "mono" -and $Arguments -eq @(".\paket.bootstrapper.exe")} -Exactly 1
+            }
+        }
     }
 
 }
