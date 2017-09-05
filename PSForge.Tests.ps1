@@ -328,4 +328,51 @@ dependencies
        
     } 
 
+    Describe "CheckUserConfig" {
+        Mock Set-DSCModuleGlobalConfig {}
+        Mock Get-DSCModuleGlobalConfig {}
+
+        Context "No configuration available" {
+
+            It "Should set username to new value if missing" {
+                Mock Read-Host { "test_username"}
+                CheckUserConfig
+                Assert-MockCalled Set-DSCModuleGlobalConfig -ParameterFilter { $Key -eq "username" -and $Value -eq "test_username" }  -Exactly 1 -Scope It
+            }
+    
+            It "Should set username to default value if value not provided" {
+                Mock Read-Host {}
+                CheckUserConfig
+                Assert-MockCalled Set-DSCModuleGlobalConfig -ParameterFilter { $Key -eq "username" -and $Value -eq [Environment]::UserName }  -Exactly 1 -Scope It
+            }
+    
+            It "Should set company if missing" {
+                Mock Read-Host { "test_company"}
+                CheckUserConfig
+                Assert-MockCalled Set-DSCModuleGlobalConfig -ParameterFilter { $Key -eq "company" -and $Value -eq "test_company" }  -Exactly 1 -Scope It
+            }
+    
+            It "Should set company to default value if value not provided" {
+                Mock Read-Host {}
+                CheckUserConfig
+                Assert-MockCalled Set-DSCModuleGlobalConfig -ParameterFilter { $Key -eq "company" -and $Value -eq "None" }  -Exactly 1 -Scope It
+            }
+
+        }
+
+        Context "Configuration already set up" {
+            Mock Get-DSCModuleGlobalConfig {
+                @{ "username" = "test_username";
+                   "company" = "test_company"
+                }
+            }
+
+            It "Should not prompt for information it already has" {
+                Assert-MockCalled Set-DSCModuleGlobalConfig -Exactly 0
+            }
+
+        }
+        
+    }
+
 }
