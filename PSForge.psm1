@@ -251,27 +251,20 @@ param(
 
     Write-Output "Scaffolding new DSC resource: $resource"
 
-    $ModuleName = (Get-Item -Path ".\" -Verbose).BaseName
-
-    if(-not (Test-Path "${ModuleName}.psd1"))
-    {
-        throw New-Object System.Exception ("'${ModuleName}.psd1' not found. Are you in the module root?")
-    }
+    $ModuleName = GetModuleName
 
     BootstrapDSCModule
+    $metadata = GetModuleManifest
 
     $PlasterParams = @{
         TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-resource";
-        DestinationPath = "DSCResources\${ResourceName}"
-        project_name = $ResourceName
+        DestinationPath = "DSCResources\${ResourceName}";
+        project_name = $ResourceName;
+        company =  $metadata.CompanyName;
+        project_short_description = $ModuleName;
+        full_name = $metadata.Author;
+        version = "1.0.0";
     }
-
-    Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable metadata
-
-    $PlasterParams.company = $metadata.CompanyName
-    $PlasterParams.project_short_description = $ModuleName
-    $PlasterParams.full_name = $metadata.Author
-    $PlasterParams.version = "1.0.0"
 
     Invoke-Plaster @PlasterParams -NoLogo *> $null
     Write-Output "New resource has been created at $(Get-Item DSCResources\$ResourceName)"
@@ -448,6 +441,7 @@ function GetModuleName{
 
 function GetModuleManifest
 {
+    $ModuleName = GetModuleName
     Import-LocalizedData -BaseDirectory "." -FileName "${ModuleName}.psd1" -BindingVariable moduleManifest
     return $moduleManifest
 }

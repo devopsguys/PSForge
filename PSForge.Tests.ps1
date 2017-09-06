@@ -533,6 +533,37 @@ dependencies
             Assert-MockCalled New-DscResource -ParameterFilter { $ResourceName -eq "b" } -Exactly 1 -Scope It
             Assert-MockCalled New-DscResource -ParameterFilter { $ResourceName -eq "c" } -Exactly 1 -Scope It
         }
+    }
 
+    Describe "New-DSCResource" {
+
+        $moduleManifest = @{
+            "ModuleVersion" = "1.0.0";
+            "Author" = "Edmund Dipple";
+            "Description" = "Test Module";
+        }
+
+        Mock Pop-Location {}
+        Mock Push-Location {}
+        Mock Invoke-Plaster {}
+        Mock getProjectRoot {}
+        Mock BootstrapDSCModule {}
+        Mock GetModuleManifest {return $moduleManifest}
+        Mock Get-Item {} -ParameterFilter { $Path -like "DSCResources\*"}
+ 
+        New-DSCResource -ResourceName "test"
+
+        It "Should use Plaster to create the file structure" {
+            Assert-MockCalled Invoke-Plaster -Exactly 1 -Scope Describe
+        }
+
+        it "Should bootstrap the module dependencies" {
+            Assert-MockCalled BootstrapDSCModule -Exactly 1 -Scope Describe
+        }
+
+        it "Should pop after pushing" {
+            Assert-MockCalled Push-Location -Exactly 1 -Scope Describe
+            Assert-MockCalled Pop-Location -Exactly 1 -Scope Describe
+        }
     }
 }
