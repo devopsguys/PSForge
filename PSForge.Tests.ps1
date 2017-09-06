@@ -401,19 +401,7 @@ dependencies
             }
         }
     }
-
-    # function installRuby
-    # {	
-    #     $Activity = "Installing Ruby"
-    #     $rubyURL = "https://dl.bintray.com/oneclick/rubyinstaller/ruby-2.3.3-i386-mingw32.7z"
-    #     $rubyInstaller = "$PSScriptRoot\ruby.7z"
-    #     Write-Progress -Activity $Activity -Status "Downloading Ruby archive" -percentComplete 20
-    #     Invoke-WebRequest -Uri $rubyURL -OutFile $rubyInstaller 
-    #     Write-Progress -Activity $Activity -Status "Extracting Ruby archive" -percentComplete 60
-    #     Invoke-ExternalCommand $PSScriptRoot\7zip\7za.exe @("x", "$rubyInstaller", "-o""${PSScriptRoot}""") | Out-Null
-    #     Write-Progress -Activity $Activity -percentComplete 100 -Completed
-    #     Remove-Item $rubyInstaller
-    # }
+    
     Describe "InstallRuby" {
 
         Mock addToPath {}
@@ -445,6 +433,26 @@ dependencies
                 Assert-MockCalled Invoke-ExternalCommand -Exactly 0 -Scope Context
                 Assert-MockCalled Write-Output -ParameterFilter { $InputObject -eq "Using system ruby on non-windows platforms" } -Exactly 1 -Scope Context
             }
+        }
+    }
+
+    Describe "fixRubyCertStore" {
+
+        Class FakeWebClient { DownloadFile($arg1, $arg2) {} }
+        $fakeWebClient = New-Object FakeWebClient
+
+        Mock isWindows { $True }
+        Mock New-Item {}
+        Mock New-Object { $fakeWebClient }
+
+        fixRubyCertStore
+
+        It "Should create the directory to host the CACERT" {
+            Assert-MockCalled New-Item -ParameterFilter { $Path -eq "C:\RUBY_SSL" } -Exactly 1 -Scope Describe
+        }
+
+        It "Should download the CACERT file" {
+            Assert-MockCalled New-Object -ParameterFilter { $TypeName -eq "System.Net.WebClient" } -Exactly 1 -Scope Describe
         }
     }
 }
