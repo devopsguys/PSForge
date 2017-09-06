@@ -503,48 +503,8 @@ dependencies
 
     }
 
-# function New-DSCModule
-# {
-# [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]    
-# param(
-#     [Parameter(Mandatory=$True,Position=1)]
-#     [string]$ModuleName,
-#     [string[]]$ResourceNames,
-#     [string]$Version="1.0.0",
-#     [string]$Description=""
-# )
-
-#     $config = Get-DSCModuleGlobalConfig
-
-#     $Activity = "Bootstrapping Powershell DSC Module"
-
-#     $PlasterParams = @{
-#         TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-module";
-#         DestinationPath = $ModuleName
-#         project_name = $ModuleName
-#         version = $Version
-#         full_name = $config.username
-#         company = $config.company
-#         project_short_description = $Description
-#     }
-
-#     Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 30
-#     Invoke-Plaster @PlasterParams -NoLogo *> $null
-
-#     Push-Location $ModuleName
-#     $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName
-
-#     foreach ($resource in $ResourceNames)
-#     {
-#         New-DSCResource -ResourceName $resource
-#     }
-
-#     BootstrapDSCModule
-#     Write-Output "Module bootstrapped at $currentDirectory"
-#     Pop-Location
-# }
     Describe "New-DSCModule" {
-        Mock -CommandName 'Invoke-Plaster' -MockWith { }
+        Mock Invoke-Plaster {}
         Mock Push-Location {}
         Mock Pop-Location {}
         Mock New-DSCResource {}
@@ -554,7 +514,24 @@ dependencies
 
         It "Should fetch the global configuration" {
             New-DSCModule -ModuleName "test"
-            Assert-MockCalled Get-DSCModuleGlobalConfig -Exactly 1 
+            Assert-MockCalled Get-DSCModuleGlobalConfig -Exactly 1 -Scope It
+        }
+
+        it "Should bootstrap the module dependencies" {
+            New-DSCModule -ModuleName "test"
+            Assert-MockCalled BootstrapDSCModule -Exactly 1 -Scope It
+        }
+
+        It "Should use Plaster to create the file structure" {
+            New-DSCModule -ModuleName "test"
+            Assert-MockCalled Invoke-Plaster -Exactly 1 -Scope It
+        }
+
+        It "Should create a new resource for each defined in parameters" {
+            New-DSCModule -ModuleName "test" -ResourceNames @("a","b","c")            
+            Assert-MockCalled New-DscResource -ParameterFilter { $ResourceName -eq "a" } -Exactly 1 -Scope It
+            Assert-MockCalled New-DscResource -ParameterFilter { $ResourceName -eq "b" } -Exactly 1 -Scope It
+            Assert-MockCalled New-DscResource -ParameterFilter { $ResourceName -eq "c" } -Exactly 1 -Scope It
         }
 
     }
