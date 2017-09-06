@@ -209,8 +209,6 @@ param(
     [string]$Description=""
 )
 
-    CheckUserConfig
-
     $config = Get-DSCModuleGlobalConfig
 
     $Activity = "Bootstrapping Powershell DSC Module"
@@ -250,8 +248,6 @@ param(
 )
 
     Push-Location "$(getProjectRoot)"
-
-    CheckUserConfig
 
     Write-Output "Scaffolding new DSC resource: $resource"
 
@@ -357,10 +353,32 @@ function Get-DSCModuleGlobalConfig
 
     if(-Not (Test-Path $configFile))
     {
-        return @{}
+        $config = @{}
+    }
+    else
+    {
+        $config = Get-Content -Raw -Path $configFile | ConvertFrom-Json
     }
 
-    return Get-Content -Raw -Path $configFile | ConvertFrom-Json
+    if(!$config.username)
+    {
+        $defaultValue = [Environment]::UserName
+        $username = Read-Host "What is your username? [$($defaultValue)]"
+        $username = ($defaultValue,$username)[[bool]$username]
+        Set-DSCModuleGlobalConfig "username" "$username"
+        $config["username"] = "$username"
+    }
+
+    if(!$config.company)
+    {
+        $defaultValue = "None"
+        $company = Read-Host "What is your company name? [$($defaultValue)]"
+        $company = ($defaultValue,$company)[[bool]$company]
+        Set-DSCModuleGlobalConfig "company" "$company"
+        $config["company"] = "$company"
+    }
+
+    return $config
 
 }
 
@@ -380,27 +398,6 @@ function Set-DSCModuleGlobalConfig
     $json | Add-Member NoteProperty $Key $Value -Force
     $json | ConvertTo-Json -depth 100 | Out-File $configFile -encoding utf8
 
-}
-
-function CheckUserConfig
-{
-    $config = Get-DSCModuleGlobalConfig
-
-    if(!$config.username)
-    {
-        $defaultValue = [Environment]::UserName
-        $username = Read-Host "What is your username? [$($defaultValue)]"
-        $username = ($defaultValue,$username)[[bool]$username]
-        Set-DSCModuleGlobalConfig "username" "$username"
-    }
-
-    if(!$config.company)
-    {
-        $defaultValue = "None"
-        $company = Read-Host "What is your company name? [$($defaultValue)]"
-        $company = ($defaultValue,$company)[[bool]$company]
-        Set-DSCModuleGlobalConfig "company" "$company"
-    }
 }
 
 function BootstrapPaket

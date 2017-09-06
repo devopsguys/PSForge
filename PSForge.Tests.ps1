@@ -324,44 +324,42 @@ dependencies
        
     } 
 
-    Describe "CheckUserConfig" {
+    Describe "Get-DSCModuleGlobalConfig" {
+     
         Mock Set-DSCModuleGlobalConfig {}
-        Mock Get-DSCModuleGlobalConfig {}
+        Mock Test-Path { $False }
 
         Context "No configuration available" {
 
             It "Should set username to new value if missing" {
                 Mock Read-Host { "test_username"}
-                CheckUserConfig
+                Get-DSCModuleGlobalConfig
                 Assert-MockCalled Set-DSCModuleGlobalConfig -ParameterFilter { $Key -eq "username" -and $Value -eq "test_username" }  -Exactly 1 -Scope It
             }
     
             It "Should set username to default value if value not provided" {
                 Mock Read-Host {}
-                CheckUserConfig
+                Get-DSCModuleGlobalConfig
                 Assert-MockCalled Set-DSCModuleGlobalConfig -ParameterFilter { $Key -eq "username" -and $Value -eq [Environment]::UserName }  -Exactly 1 -Scope It
             }
     
             It "Should set company if missing" {
                 Mock Read-Host { "test_company"}
-                CheckUserConfig
+                Get-DSCModuleGlobalConfig
                 Assert-MockCalled Set-DSCModuleGlobalConfig -ParameterFilter { $Key -eq "company" -and $Value -eq "test_company" }  -Exactly 1 -Scope It
             }
     
             It "Should set company to default value if value not provided" {
                 Mock Read-Host {}
-                CheckUserConfig
+                Get-DSCModuleGlobalConfig
                 Assert-MockCalled Set-DSCModuleGlobalConfig -ParameterFilter { $Key -eq "company" -and $Value -eq "None" }  -Exactly 1 -Scope It
             }
 
         }
 
         Context "Configuration already set up" {
-            Mock Get-DSCModuleGlobalConfig {
-                @{ "username" = "test_username";
-                   "company" = "test_company"
-                }
-            }
+
+            Mock Get-Content { '{"username":"test_username","company":"test_company"}' }
 
             It "Should not prompt for information it already has" {
                 Assert-MockCalled Set-DSCModuleGlobalConfig -Exactly 0
@@ -502,6 +500,58 @@ dependencies
             Test-DSCModule -Debug
             Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq "bundle" -and (Compare-Array $Arguments @("exec", "kitchen", "verify", "--log-level","Debug")) } -Scope It
         }
+
+    }
+
+# function New-DSCModule
+# {
+# [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]    
+# param(
+#     [Parameter(Mandatory=$True,Position=1)]
+#     [string]$ModuleName,
+#     [string[]]$ResourceNames,
+#     [string]$Version="1.0.0",
+#     [string]$Description=""
+# )
+    
+#     CheckUserConfig
+
+#     $config = Get-DSCModuleGlobalConfig
+
+#     $Activity = "Bootstrapping Powershell DSC Module"
+
+#     $PlasterParams = @{
+#         TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-module";
+#         DestinationPath = $ModuleName
+#         project_name = $ModuleName
+#         version = $Version
+#         full_name = $config.username
+#         company = $config.company
+#         project_short_description = $Description
+#     }
+
+#     Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 30
+#     Invoke-Plaster @PlasterParams -NoLogo *> $null
+
+#     Push-Location $ModuleName
+#     $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName
+
+#     foreach ($resource in $ResourceNames)
+#     {
+#         New-DSCResource -ResourceName $resource
+#     }
+
+#     BootstrapDSCModule
+#     Write-Output "Module bootstrapped at $currentDirectory"
+#     Pop-Location
+# }
+    Describe "New-DSCModule" {
+        Mock Invoke-Plaster {}
+        Mock Push-Location {}
+        Mock Pop-Location {}
+        Mock New-DSCResource {}
+        Mock BootstrapDSCModule {}
+
 
     }
 }
