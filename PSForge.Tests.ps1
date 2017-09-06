@@ -513,8 +513,6 @@ dependencies
 #     [string]$Version="1.0.0",
 #     [string]$Description=""
 # )
-    
-#     CheckUserConfig
 
 #     $config = Get-DSCModuleGlobalConfig
 
@@ -546,12 +544,18 @@ dependencies
 #     Pop-Location
 # }
     Describe "New-DSCModule" {
-        Mock Invoke-Plaster {}
+        Mock -CommandName 'Invoke-Plaster' -MockWith { }
         Mock Push-Location {}
         Mock Pop-Location {}
         Mock New-DSCResource {}
+        Mock Get-DSCModuleGlobalConfig {}
         Mock BootstrapDSCModule {}
+        
 
+        It "Should fetch the global configuration" {
+            New-DSCModule -ModuleName "test"
+            Assert-MockCalled Get-DSCModuleGlobalConfig -Exactly 1 
+        }
 
     }
 }
