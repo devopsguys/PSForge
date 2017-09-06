@@ -402,4 +402,49 @@ dependencies
         }
     }
 
+    # function installRuby
+    # {	
+    #     $Activity = "Installing Ruby"
+    #     $rubyURL = "https://dl.bintray.com/oneclick/rubyinstaller/ruby-2.3.3-i386-mingw32.7z"
+    #     $rubyInstaller = "$PSScriptRoot\ruby.7z"
+    #     Write-Progress -Activity $Activity -Status "Downloading Ruby archive" -percentComplete 20
+    #     Invoke-WebRequest -Uri $rubyURL -OutFile $rubyInstaller 
+    #     Write-Progress -Activity $Activity -Status "Extracting Ruby archive" -percentComplete 60
+    #     Invoke-ExternalCommand $PSScriptRoot\7zip\7za.exe @("x", "$rubyInstaller", "-o""${PSScriptRoot}""") | Out-Null
+    #     Write-Progress -Activity $Activity -percentComplete 100 -Completed
+    #     Remove-Item $rubyInstaller
+    # }
+    Describe "InstallRuby" {
+
+        Mock addToPath {}
+        Mock Invoke-ExternalCommand {}
+        Mock Invoke-WebRequest {}
+        Mock New-Item {}
+        Mock Remove-Item {}
+        Mock fixRubyCertStore {}
+        Mock Test-Path { $False }
+        Mock Write-Output {}
+        
+        Context "Windows" {
+            Mock isWindows { $True }
+            installRuby
+            It "Should run installers on Unix" {
+                Assert-MockCalled addToPath -Exactly 1 -Scope Context
+                Assert-MockCalled Invoke-WebRequest -Exactly 1 -Scope Context
+                Assert-MockCalled Invoke-ExternalCommand -Exactly 1 -Scope Context
+                Assert-MockCalled Write-Output -ParameterFilter { $InputObject -eq "Using system ruby on non-windows platforms" } -Exactly 0 -Scope Context
+            }
+        }
+
+        Context "Unix" {
+            Mock isWindows { $False }
+            installRuby
+            It "Should not run any installers on Unix" {
+                Assert-MockCalled addToPath -Exactly 0 -Scope Context
+                Assert-MockCalled Invoke-WebRequest -Exactly 0 -Scope Context
+                Assert-MockCalled Invoke-ExternalCommand -Exactly 0 -Scope Context
+                Assert-MockCalled Write-Output -ParameterFilter { $InputObject -eq "Using system ruby on non-windows platforms" } -Exactly 1 -Scope Context
+            }
+        }
+    }
 }

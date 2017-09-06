@@ -100,15 +100,47 @@ function checkDependencies
 
 function installRuby
 {	
-    $Activity = "Installing Ruby"
-    $rubyURL = "https://dl.bintray.com/oneclick/rubyinstaller/ruby-2.3.3-i386-mingw32.7z"
-    $rubyInstaller = "$PSScriptRoot\ruby.7z"
-    Write-Progress -Activity $Activity -Status "Downloading Ruby archive" -percentComplete 20
-    Invoke-WebRequest -Uri $rubyURL -OutFile $rubyInstaller 
-    Write-Progress -Activity $Activity -Status "Extracting Ruby archive" -percentComplete 60
-    & $PSScriptRoot\7zip\7za.exe x $rubyInstaller -o"${PSScriptRoot}" | Out-Null
-    Write-Progress -Activity $Activity -percentComplete 100 -Completed
-    Remove-Item $rubyInstaller
+    if(isWindows)
+    {
+        $RubyPath = "$PSScriptRoot\ruby-2.3.3-i386-mingw32\bin\"
+        addToPath $RubyPath
+        if(-not (Test-Path "$RubyPath\ruby.exe"))
+        {
+            $Activity = "Installing Ruby"
+            $rubyURL = "https://dl.bintray.com/oneclick/rubyinstaller/ruby-2.3.3-i386-mingw32.7z"
+            $rubyInstaller = "$PSScriptRoot\ruby.7z"
+            Write-Progress -Activity $Activity -Status "Downloading Ruby archive" -percentComplete 20
+            Invoke-WebRequest -Uri $rubyURL -OutFile $rubyInstaller 
+            Write-Progress -Activity $Activity -Status "Extracting Ruby archive" -percentComplete 60
+            Invoke-ExternalCommand $PSScriptRoot\7zip\7za.exe @("x", "$rubyInstaller", "-o""${PSScriptRoot}""") | Out-Null
+            Write-Progress -Activity $Activity -percentComplete 100 -Completed
+            Remove-Item $rubyInstaller
+            fixRubyCertStore
+        }
+    }else{
+        Write-Output "Using system ruby on non-windows platforms"
+    }
+}
+
+function fixRubyCertStore {
+    if(isWindows){
+        $SSL_DIR = "C:\RUBY_SSL"
+        $CA_FILE = "cacert.pem"
+        $CA_URL = "https://curl.haxx.se/ca/${CA_FILE}"
+        
+        New-Item -Type Directory -Force $SSL_DIR
+        
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;
+        
+        [Environment]::SetEnvironmentVariable("SSL_CERT_FILE", "${SSL_DIR}\${CA_FILE}", "User")
+        $Env:SSL_CERT_FILE = [Environment]::GetEnvironmentVariable("SSL_CERT_FILE", "User")
+        
+        (New-Object System.Net.WebClient).DownloadFile($CA_URL, "${SSL_DIR}\${CA_FILE}")
+        
+        Write-Output "Latest ${CA_FILE} from ${CA_URL} has been downloaded to ${SSL_DIR}"
+        Write-Output "Environment variable SSL_CERT_FILE set to $($Env:SSL_CERT_FILE)"
+        Write-Output "Ruby for Windows should now be able to verify remote SSL connections"
+    }
 }
 
 function getProjectRoot
@@ -393,17 +425,7 @@ function BootstrapDSCModule
 
     $Activity = "Bootstrapping Powershell DSC Module"
 
-    if(isWindows)
-    {
-        $RubyPath = "$PSScriptRoot\ruby-2.3.3-i386-mingw32\bin\"
-        addToPath $RubyPath
-        if(-not (Test-Path "$RubyPath\ruby.exe"))
-        {
-            installRuby
-            . $PSScriptRoot\helper_scripts\fixRubyCertStore.ps1
-        }
-    }
-
+    installRuby
     checkDependencies
 
     if(!(Test-Path ".\.git"))
