@@ -460,7 +460,7 @@ dependencies
        
         it "Should throw an exception if the credentials file is missing" {
             Mock Test-Path { $False } -ParameterFilter { $Path -eq "$HOME/.azure/credentials" }
-            { Test-DSCModule } | Should Throw "Create an azure credentials file at /Users/edmundd/.azure/.credentials as described here: https://github.com/test-kitchen/kitchen-azurerm"
+            { Test-DSCModule } | Should Throw "Create an azure credentials file at"
         }
 
         it "Should prompt the user if the subscription environment variable has not been set" {
