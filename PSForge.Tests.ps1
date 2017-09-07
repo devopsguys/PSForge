@@ -516,7 +516,7 @@ dependencies
     }
 
     Describe "New-DSCModule" {
-        Mock Invoke-Plaster {}
+        Mock Invoke-PlasterWrapper {}
         Mock Push-Location {}
         Mock Pop-Location {}
         Mock New-DSCResource {}
@@ -536,7 +536,7 @@ dependencies
 
         It "Should use Plaster to create the file structure" {
             New-DSCModule -ModuleName "test"
-            Assert-MockCalled Invoke-Plaster -Exactly 1 -Scope It
+            Assert-MockCalled Invoke-PlasterWrapper -Exactly 1 -Scope It
         }
 
         It "Should create a new resource for each defined in parameters" {
@@ -557,7 +557,7 @@ dependencies
 
         Mock Pop-Location {}
         Mock Push-Location {}
-        Mock Invoke-Plaster {}
+        Mock Invoke-PlasterWrapper {}
         Mock getProjectRoot {}
         Mock BootstrapDSCModule {}
         Mock GetModuleManifest {return $moduleManifest}
@@ -566,7 +566,7 @@ dependencies
         New-DSCResource -ResourceName "test"
 
         It "Should use Plaster to create the file structure" {
-            Assert-MockCalled Invoke-Plaster -Exactly 1 -Scope Describe
+            Assert-MockCalled Invoke-PlasterWrapper -Exactly 1 -Scope Describe
         }
 
         it "Should bootstrap the module dependencies" {

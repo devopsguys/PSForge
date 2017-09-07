@@ -24,7 +24,7 @@ param(
     }
 
     Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 30
-    Invoke-Plaster @PlasterParams -NoLogo *> $null
+    Invoke-PlasterWrapper @PlasterParams
 
     Push-Location $ModuleName
     $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName

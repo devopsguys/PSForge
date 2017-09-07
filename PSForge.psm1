@@ -230,6 +230,12 @@ function GetDependenciesManifest
     return $dependenciesManifest
 }
 
+function Invoke-PlasterWrapper {
+    param (
+        $parameters
+    )
+    Invoke-Plaster $parameters -NoLogo *> $null
+}
 function GeneratePaketTemplate {
 param (
     [Parameter(Mandatory=$True,Position=1)]

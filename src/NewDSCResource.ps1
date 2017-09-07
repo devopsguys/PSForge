@@ -25,7 +25,7 @@ param(
         version = "1.0.0";
     }
 
-    Invoke-Plaster @PlasterParams -NoLogo *> $null
+    Invoke-PlasterWrapper @PlasterParams
     Write-Output "New resource has been created at $(Get-Item DSCResources\$ResourceName)"
 
     Pop-Location
