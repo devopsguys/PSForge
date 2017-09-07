@@ -48,7 +48,7 @@ function installRuby
             fixRubyCertStore
         }
     }else{
-        Write-Output "Using system ruby on non-windows platforms"
+        Write-Debug "Using system ruby on non-windows platforms"
     }
 }
 

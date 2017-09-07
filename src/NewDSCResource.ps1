@@ -16,7 +16,7 @@ param(
     $metadata = GetModuleManifest
 
     $PlasterParams = @{
-        TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-resource";
+        TemplatePath = [System.IO.Path]::Combine($PSScriptRoot, "..", "plaster-powershell-dsc-resource")
         DestinationPath = "DSCResources\${ResourceName}";
         project_name = $ResourceName;
         company =  $metadata.CompanyName;
@@ -25,7 +25,7 @@ param(
         version = "1.0.0";
     }
 
-    Invoke-PlasterWrapper @PlasterParams
+    Invoke-PlasterWrapper $PlasterParams
     Write-Output "New resource has been created at $(Get-Item DSCResources\$ResourceName)"
 
     Pop-Location

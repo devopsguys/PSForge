@@ -70,7 +70,7 @@ InModuleScope PSForge {
         Mock Remove-Item {}
         Mock fixRubyCertStore {}
         Mock Test-Path { $False }
-        Mock Write-Output {}
+        Mock Write-Debug {}
         
         Context "Windows" {
             Mock isWindows { $True }
@@ -79,7 +79,7 @@ InModuleScope PSForge {
                 Assert-MockCalled addToPath -Exactly 1 -Scope Context
                 Assert-MockCalled Invoke-WebRequest -Exactly 1 -Scope Context
                 Assert-MockCalled Invoke-ExternalCommand -Exactly 1 -Scope Context
-                Assert-MockCalled Write-Output -ParameterFilter { $InputObject -eq "Using system ruby on non-windows platforms" } -Exactly 0 -Scope Context
+                Assert-MockCalled Write-Debug -ParameterFilter { $InputObject -eq "Using system ruby on non-windows platforms" } -Exactly 0 -Scope Context
             }
         }
 
@@ -90,7 +90,7 @@ InModuleScope PSForge {
                 Assert-MockCalled addToPath -Exactly 0 -Scope Context
                 Assert-MockCalled Invoke-WebRequest -Exactly 0 -Scope Context
                 Assert-MockCalled Invoke-ExternalCommand -Exactly 0 -Scope Context
-                Assert-MockCalled Write-Output -ParameterFilter { $InputObject -eq "Using system ruby on non-windows platforms" } -Exactly 1 -Scope Context
+                Assert-MockCalled Write-Debug -ParameterFilter { $Message -eq "Using system ruby on non-windows platforms" } -Exactly 1 -Scope Context
             }
         }
     }
