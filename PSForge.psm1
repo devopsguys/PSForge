@@ -172,228 +172,12 @@ function updateBundle{
     }
 }
 
-function Invoke-Paket
-{
 
-    Push-Location "$(getProjectRoot)"
-    
-    BootstrapPaket
-    BootstrapDSCModule
-    generatePaketFiles
 
-    if(isWindows)
-    {
-        $paketBin = ".paket\paket.exe"
-    }
-    else
-    {
-        $paketBin = "mono .paket\paket.exe"
-    }
 
-    Invoke-ExternalCommand $paketBin $args
 
-    clearPaketFiles
 
-    Pop-Location
 
-}
-
-function New-DSCModule
-{
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]    
-param(
-    [Parameter(Mandatory=$True,Position=1)]
-    [string]$ModuleName,
-    [string[]]$ResourceNames,
-    [string]$Version="1.0.0",
-    [string]$Description=""
-)
-
-    $config = Get-DSCModuleGlobalConfig
-
-    $Activity = "Bootstrapping Powershell DSC Module"
-
-    $PlasterParams = @{
-     TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-module";
-     DestinationPath = $ModuleName
-     project_name = $ModuleName
-     version = $Version
-     full_name = $config.username
-     company = $config.company
-     project_short_description = $Description
-    }
-
-    Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 30
-    Invoke-Plaster @PlasterParams -NoLogo *> $null
-
-    Push-Location $ModuleName
-    $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName
-
-    foreach ($resource in $ResourceNames)
-    {
-        New-DSCResource -ResourceName $resource
-    }
-
-    BootstrapDSCModule
-    Write-Output "Module bootstrapped at $currentDirectory"
-    Pop-Location
-}
-
-function New-DSCResource
-{
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
-param(
-    [Parameter(Mandatory=$True,Position=1)]
-    [string]$ResourceName
-)
-
-    Push-Location "$(getProjectRoot)"
-
-    Write-Output "Scaffolding new DSC resource: $resource"
-
-    $ModuleName = GetModuleName
-
-    BootstrapDSCModule
-    $metadata = GetModuleManifest
-
-    $PlasterParams = @{
-        TemplatePath = "$PSScriptRoot\plaster-powershell-dsc-resource";
-        DestinationPath = "DSCResources\${ResourceName}";
-        project_name = $ResourceName;
-        company =  $metadata.CompanyName;
-        project_short_description = $ModuleName;
-        full_name = $metadata.Author;
-        version = "1.0.0";
-    }
-
-    Invoke-Plaster @PlasterParams -NoLogo *> $null
-    Write-Output "New resource has been created at $(Get-Item DSCResources\$ResourceName)"
-
-    Pop-Location
-}
-
-function Export-DSCModule
-{
-param
-(
-    [parameter(Mandatory = $true,Position=1)]
-    [string]$Version
-)
-    Push-Location "$(getProjectRoot)"
-
-    BootstrapDSCModule
-    Invoke-Paket update
-    Invoke-Paket pack output .\output version $version
-
-    Pop-Location
-}
-
-function Test-DSCModule
-{
-param (
-    [ValidateSet('create', 'converge', 'verify', 'test','destroy','login')]
-    [string] $Action = 'verify',
-    [switch] $Debug
-)
-
-    Push-Location "$(getProjectRoot)"
-
-    Write-Output "Action: $Action"
-
-    BootstrapDSCModule
-
-    $azureRMCredentials = "$HOME/.azure/credentials"
-
-    if( -not (Test-Path $azureRMCredentials))
-    {
-        throw New-Object System.Exception ("Create an azure credentials file at $HOME/.azure/.credentials as described here: https://github.com/test-kitchen/kitchen-azurerm")
-    }
-
-    if (-not (Test-Path env:AZURERM_SUBSCRIPTION)) {
-        Write-Output "The environment variable AZURERM_SUBSCRIPTION has not been set."
-        Write-Output ""
-        Write-Output "Setting the value of AZURERM_SUBSCRIPTION"
-
-        $firstLine,$remainingLines = Get-Content $azureRMCredentials
-
-        $defaultValue = $firstLine -replace '[[\]]',''
-        $prompt = Read-Host "Input your Azure Subscription ID [$($defaultValue)]"
-        $prompt = ($defaultValue,$prompt)[[bool]$prompt]
-
-        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
-        $env:AZURERM_SUBSCRIPTION = $prompt
-    }
-
-    $KitchenParams = @($Action)
-
-    if($Debug)
-    {
-        $KitchenParams += @("--log-level","Debug")
-    }
-
-    updateBundle
-
-    Invoke-Paket update
-    Invoke-ExternalCommand "bundle" (@("exec", "kitchen") + ${KitchenParams})
-
-    Pop-Location
-
-}
-
-function Get-DSCModuleGlobalConfig
-{
-    $configFile = "$HOME/DSCWorkflowConfig.json"
-
-    if(-Not (Test-Path $configFile))
-    {
-        $config = @{}
-    }
-    else
-    {
-        $config = Get-Content -Raw -Path $configFile | ConvertFrom-Json
-    }
-
-    if(!$config.username)
-    {
-        $defaultValue = [Environment]::UserName
-        $username = Read-Host "What is your username? [$($defaultValue)]"
-        $username = ($defaultValue,$username)[[bool]$username]
-        Set-DSCModuleGlobalConfig "username" "$username"
-        $config["username"] = "$username"
-    }
-
-    if(!$config.company)
-    {
-        $defaultValue = "None"
-        $company = Read-Host "What is your company name? [$($defaultValue)]"
-        $company = ($defaultValue,$company)[[bool]$company]
-        Set-DSCModuleGlobalConfig "company" "$company"
-        $config["company"] = "$company"
-    }
-
-    return $config
-
-}
-
-function Set-DSCModuleGlobalConfig
-{
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
-    param (
-        [parameter(Mandatory = $true,Position=1)]
-        [string] $Key,
-        [parameter(Mandatory = $true,Position=2)]
-        [string] $Value
-    )
-
-    $configFile = "$HOME/DSCWorkflowConfig.json"
-    $json = Get-DSCModuleGlobalConfig
-    $Key = $Key.ToLower()
-    
-    $json | Add-Member NoteProperty $Key $Value -Force
-    $json = ConvertTo-Json -depth 100 -InputObject $json
-    $json | Out-File $configFile -encoding utf8
-
-}
 
 function BootstrapPaket
 {
@@ -509,5 +293,13 @@ function generatePaketFiles
     }
 
 }
+
+. $PSScriptRoot\src\NewDSCModule.ps1
+. $PSScriptRoot\src\NewDSCResource.ps1
+. $PSScriptRoot\src\TestDSCModule.ps1
+. $PSScriptRoot\src\ExportDSCModule.ps1
+. $PSScriptRoot\src\GetDSCModuleGlobalConfig.ps1
+. $PSScriptRoot\src\SetDSCModuleGlobalConfig.ps1
+. $PSScriptRoot\src\InvokePaket.ps1
 
 Export-ModuleMember -function *-*

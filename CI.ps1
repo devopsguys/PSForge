@@ -12,8 +12,8 @@ if([Environment]::OSVersion.Platform -eq "Unix"){
 $mockFile = "./Packages/Pester/Functions/Mock.ps1"
 (Get-Content $mockFile).replace('if ($PSVersionTable.PSVersion -ge ''5.0.10586.122'')', 'if (''5.0.10586.122'' -le $PSVersionTable.PSVersion)') | Set-Content $mockFile
 
-Remove-Module Pester -ErrorAction SilentlyContinue
-Remove-Module PSForge -ErrorAction SilentlyContinue
+Remove-Module Pester -Force -ErrorAction SilentlyContinue 
+Remove-Module PSForge -Force -ErrorAction SilentlyContinue
 Import-Module .\PSForge.psm1
 Import-Module .\packages\Pester\Pester.psd1
 
