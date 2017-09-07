@@ -29,7 +29,10 @@ Write-Host "##vso[build.updatebuildnumber]${buildNumber}"
 
 $excludeTag = "not" + [environment]::OSVersion.Platform
 
-$result = Invoke-Pester -Path .\PSForge.Tests.ps1 -OutputFormat NUnitXml -OutputFile TestResults.xml -PassThru -CodeCoverage .\PSForge.psm1 -CodeCoverageOutputFile coverage.xml -ExcludeTag $excludeTag
-    
+$testFiles = Get-Item "${PSScriptRoot}\src\*.Tests.ps1"
+$sourceFiles = Get-Item "${PSScriptRoot}\src\*.ps1" -Exclude *.Tests.ps1
+$sourceFiles += Get-Item "${PSScriptRoot}\PSForge.psm1"
 
+$result = Invoke-Pester -Path $testFiles -OutputFormat NUnitXml -OutputFile TestResults.xml -PassThru -CodeCoverage $sourceFiles -CodeCoverageOutputFile coverage.xml -ExcludeTag $excludeTag
+    
 Exit $result.FailedCount
