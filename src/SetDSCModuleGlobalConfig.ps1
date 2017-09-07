@@ -9,7 +9,7 @@ function Set-DSCModuleGlobalConfig
     )
 
     $configFile = "$HOME/DSCWorkflowConfig.json"
-    $json = Get-DSCModuleGlobalConfig
+    $json = Get-DSCModuleGlobalConfig -NoCheck
     $Key = $Key.ToLower()
     
     $json | Add-Member NoteProperty $Key $Value -Force
