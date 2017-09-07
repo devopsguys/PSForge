@@ -27,6 +27,9 @@ $buildNumber = "$moduleVersion-$(Get-Date -Format 'yyyyMMddHHmmss')"
 Write-Host "##vso[task.setvariable variable=moduleversion]${moduleVersion}"
 Write-Host "##vso[build.updatebuildnumber]${buildNumber}"
 
-$result = Invoke-Pester -Path .\PSForge.Tests.ps1 -OutputFormat NUnitXml -OutputFile TestResults.xml -PassThru -CodeCoverage .\PSForge.psm1 -CodeCoverageOutputFile coverage.xml 
+$excludeTag = "not" + [environment]::OSVersion.Platform
+
+$result = Invoke-Pester -Path .\PSForge.Tests.ps1 -OutputFormat NUnitXml -OutputFile TestResults.xml -PassThru -CodeCoverage .\PSForge.psm1 -CodeCoverageOutputFile coverage.xml -ExcludeTag $excludeTag
+    
 
 Exit $result.FailedCount
