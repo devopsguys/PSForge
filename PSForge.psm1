@@ -172,13 +172,6 @@ function updateBundle{
     }
 }
 
-
-
-
-
-
-
-
 function BootstrapPaket
 {
     Push-Location "$PSScriptRoot\paket"
