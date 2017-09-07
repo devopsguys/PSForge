@@ -388,8 +388,10 @@ function Set-DSCModuleGlobalConfig
     $configFile = "$HOME/DSCWorkflowConfig.json"
     $json = Get-DSCModuleGlobalConfig
     $Key = $Key.ToLower()
+    
     $json | Add-Member NoteProperty $Key $Value -Force
-    $json | ConvertTo-Json -depth 100 | Out-File $configFile -encoding utf8
+    $json = ConvertTo-Json -depth 100 -InputObject $json
+    $json | Out-File $configFile -encoding utf8
 
 }
 
