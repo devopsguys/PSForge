@@ -1,6 +1,7 @@
 ﻿function Invoke-PlasterWrapper {
     param (
-        $parameters
+        [Parameter(Mandatory=$True,Position=1)]
+        $Parameters
     )
-    Invoke-Plaster $parameters -NoLogo *> $null
+    Invoke-Plaster @Parameters -NoLogo *> $null
 }
