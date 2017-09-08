@@ -26,7 +26,7 @@ function Invoke-Paket
 
 function BootstrapPaket
 {
-    Push-Location "$PSScriptRoot\paket"
+    Push-Location "$(GetPSForgeModuleRoot)\paket"
     if(-not (Test-Path ".\paket.exe"))
     {
         if(isWindows)
