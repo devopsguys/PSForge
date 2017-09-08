@@ -16,7 +16,7 @@ param(
     $metadata = GetModuleManifest
 
     $PlasterParams = @{
-        TemplatePath = [System.IO.Path]::Combine($PSScriptRoot, "..", "plaster-powershell-dsc-resource")
+        TemplatePath = [System.IO.Path]::Combine($(GetPSForgeModuleRoot), "plaster-powershell-dsc-resource")
         DestinationPath = "DSCResources\${ResourceName}";
         project_name = $ResourceName;
         company =  $metadata.CompanyName;

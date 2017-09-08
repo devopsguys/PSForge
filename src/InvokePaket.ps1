@@ -82,7 +82,7 @@ function generatePaketFiles
 
     New-Item -Path "paket.dependencies" | Out-Null    
 
-    Copy-Item -Recurse $PSScriptRoot\paket .\.paket | Out-Null
+    Copy-Item -Recurse "$(GetPSForgeModuleRoot)\paket" ".\.paket" | Out-Null
 
     ForEach($nugetFeed in $dependenciesManifest.NugetFeeds)
     {
@@ -94,7 +94,6 @@ function generatePaketFiles
         "nuget $nugetPackage" | Out-File paket.dependencies -Append -Encoding utf8
     }
 
-    GeneratePaketTemplate $moduleName $moduleManifest
     GeneratePaketTemplate $moduleName $moduleManifest | Out-File  paket.template -Append -Encoding utf8
 
     ForEach($nugetPackage in $dependenciesManifest.NugetPackages)

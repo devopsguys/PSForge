@@ -42,7 +42,7 @@ function installRuby
             Write-Progress -Activity $Activity -Status "Downloading Ruby archive" -percentComplete 20
             Invoke-WebRequest -Uri $rubyURL -OutFile $rubyInstaller 
             Write-Progress -Activity $Activity -Status "Extracting Ruby archive" -percentComplete 60
-            Invoke-ExternalCommand "$(GetPSForgeModuleRoot)\7zip\7za.exe" @("x", "$rubyInstaller", "-o""${PSScriptRoot}""") | Out-Null
+            Invoke-ExternalCommand "$(GetPSForgeModuleRoot)\7zip\7za.exe" @("x", "$rubyInstaller", "-o""$(GetPSForgeModuleRoot)""") | Out-Null
             Write-Progress -Activity $Activity -percentComplete 100 -Completed
             Remove-Item $rubyInstaller
             fixRubyCertStore

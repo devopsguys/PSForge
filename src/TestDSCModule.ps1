@@ -44,7 +44,7 @@ param (
     updateBundle
 
     Invoke-Paket update
-    Invoke-ExternalCommand "bundle" (@("exec", "kitchen") + ${KitchenParams})
+    Invoke-Expression "bundle exec kitchen ${KitchenParams}"
 
     Pop-Location
 
