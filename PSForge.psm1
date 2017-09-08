@@ -97,6 +97,10 @@ function GetDependenciesManifest
     return $dependenciesManifest
 }
 
+function GetPSForgeModuleRoot {
+    return $PSScriptRoot
+}
+
 # Private helper functions
 . $PSScriptRoot\src\Dependencies.ps1
 . $PSScriptRoot\src\PlasterHelpers.ps1

@@ -32,17 +32,17 @@ function installRuby
 {	
     if(isWindows)
     {
-        $RubyPath = "$PSScriptRoot\ruby-2.3.3-i386-mingw32\bin\"
+        $RubyPath = "$(GetPSForgeModuleRoot)\ruby-2.3.3-i386-mingw32\bin\"
         addToPath $RubyPath
         if(-not (Test-Path "$RubyPath\ruby.exe"))
         {
             $Activity = "Installing Ruby"
             $rubyURL = "https://dl.bintray.com/oneclick/rubyinstaller/ruby-2.3.3-i386-mingw32.7z"
-            $rubyInstaller = "$PSScriptRoot\ruby.7z"
+            $rubyInstaller = "$(GetPSForgeModuleRoot)\ruby.7z"
             Write-Progress -Activity $Activity -Status "Downloading Ruby archive" -percentComplete 20
             Invoke-WebRequest -Uri $rubyURL -OutFile $rubyInstaller 
             Write-Progress -Activity $Activity -Status "Extracting Ruby archive" -percentComplete 60
-            Invoke-ExternalCommand $PSScriptRoot\7zip\7za.exe @("x", "$rubyInstaller", "-o""${PSScriptRoot}""") | Out-Null
+            Invoke-ExternalCommand "$(GetPSForgeModuleRoot)\7zip\7za.exe" @("x", "$rubyInstaller", "-o""${PSScriptRoot}""") | Out-Null
             Write-Progress -Activity $Activity -percentComplete 100 -Completed
             Remove-Item $rubyInstaller
             fixRubyCertStore
