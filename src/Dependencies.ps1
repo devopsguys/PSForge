@@ -45,6 +45,9 @@ function installRuby
             Invoke-ExternalCommand "$(GetPSForgeModuleRoot)\7zip\7za.exe" @("x", "$rubyInstaller", "-o""$(GetPSForgeModuleRoot)""") | Out-Null
             Write-Progress -Activity $Activity -percentComplete 100 -Completed
             Remove-Item $rubyInstaller
+            Push-Location $RubyPath
+            Invoke-ExternalCommand ".\gem" @("install", "bundler") | Out-Null
+            Pop-Location
             fixRubyCertStore
         }
     }else{
@@ -74,7 +77,6 @@ function fixRubyCertStore {
 }
 
 function updateBundle{
-    
     if(-not (isOnPath "bundler"))
     {
         Invoke-ExternalCommand "gem" @("install", "bundler") | Out-Null
@@ -84,7 +86,7 @@ function updateBundle{
     Remove-Item stdout
     if($bundle.Exitcode -ne 0)
     {
-        Invoke-ExternalCommand "bundle" @("install","--path", ".bundle")
+        Invoke-Expression "bundle install --path .bundle"
     }
 }
 function BootstrapDSCModule
