@@ -1,6 +1,8 @@
 ﻿InModuleScope PSForge {
     Describe "Dependency checking"{
         
+        Mock Invoke-ExternalCommand {}
+
         Context "Windows" {
             Mock getOSPlatform { return "windows"}
 
