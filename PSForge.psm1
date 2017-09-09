@@ -43,6 +43,7 @@ Param(
 }
 
 function Invoke-ExternalCommandRealtime {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingInvokeExpression", "")]
     Param(
         [Parameter(Mandatory=$True,Position=1)]
         $command,
@@ -76,7 +77,7 @@ function isOnPath
     )
 
     $bin = Get-Command -ErrorAction "SilentlyContinue" $cmd
-    return ($bin -ne $null)
+    return ($null -ne $bin)
 }
 
 function getProjectRoot
