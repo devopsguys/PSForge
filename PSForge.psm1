@@ -33,7 +33,7 @@ Param(
     # Reset $LASTEXITCODE in case it was tripped somewhere
     $Global:LASTEXITCODE = 0
 
-    $result = & $command $arguments  
+    $result = & $command $arguments 2>$null
 
     if ($LASTEXITCODE -ne 0) {
         Throw "Something bad happened while executing $command. Details: $($result | Out-String)"
@@ -81,8 +81,12 @@ function isOnPath
 
 function getProjectRoot
 {
+    $relative = Invoke-ExternalCommand "git" @("rev-parse", "--show-cdup")
+    if(-not $relative){
+        $relative = "."
+    }
 
-    $projectRoot = Invoke-ExternalCommand "git" @("rev-parse", "--show-toplevel")
+    $projectRoot = Get-Item $relative
 
     if(-Not (Test-Path $projectRoot))
     {
