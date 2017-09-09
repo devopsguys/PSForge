@@ -46,21 +46,6 @@ InModuleScope PSForge {
         
     }
 
-    Describe "getProjectRoot" {
-
-        . $PSScriptRoot\PesterHelpers.ps1
-        
-        Mock Invoke-ExternalCommand { "ruby 2.2.2p222 (2016-11-21 revision 56859) [x86_64-win32]"} -ParameterFilter { $Command -eq "ruby" -and $Arguments -eq @("--version")}
-        
-        Mock Invoke-ExternalCommand { return "/fake-path" } -ParameterFilter { $Command -eq "git" -and (Compare-Array $Arguments @("rev-parse", "--show-toplevel"))}
-        Mock Test-Path { return $True } -ParameterFilter { $Path -eq "/fake-path" }
-       
-        It "Should output the git root" {
-            getProjectRoot | should -eq "/fake-path"
-        }
-
-    }
-
     Describe "Smoke tests" {
         
         Push-Location $TestDrive
@@ -89,7 +74,25 @@ InModuleScope PSForge {
             }
         }
 
+        Context "GetProjectRoot" {
+            It "Output same folder if you're in root already" {
+                getProjectRoot | should be "$TestDrive/test-module"
+            }
 
+            It "Output correct folder if you're in a subfolder" {
+                Push-Location $TestDrive/test-module/DSCResources
+                getProjectRoot | should be "$TestDrive/test-module"
+                Pop-Location
+            }
+
+            It "Throws an exception if you're not in a module folder" {
+                Push-Location $TestDrive/test-module/..
+                { getProjectRoot } | Should Throw
+                Pop-Location
+            }
+
+            
+        }
 
         Pop-Location
         Pop-Location
