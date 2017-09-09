@@ -1,7 +1,7 @@
 ﻿InModuleScope PSForge {
     Describe "Dependency checking"{
         
-        Mock Invoke-ExternalCommand {}
+        Mock Invoke-ExternalCommand { "2.3.0" } -ParameterFilter { $Command -eq "ruby" }
 
         Context "Windows" {
             Mock getOSPlatform { return "windows"}
