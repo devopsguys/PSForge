@@ -81,19 +81,19 @@ function isOnPath
 
 function getProjectRoot
 {
-    $relative = Invoke-ExternalCommand "git" @("rev-parse", "--show-cdup")
+
+    try {
+        $relative = Invoke-ExternalCommand "git" @("rev-parse", "--show-cdup")
+    }
+    catch {
+        throw New-Object System.Exception ("No .git directory found in ${PWD} or any of its parent directories.")
+    }
+    
     if(-not $relative){
         $relative = "."
     }
 
-    $projectRoot = Get-Item $relative
-
-    if(-Not (Test-Path $projectRoot))
-    {
-        throw New-Object System.Exception ("No .git directory found in ${PWD} or any of its parent directories.")
-    }
-
-    return $projectRoot
+    return (Get-Item $relative)
 
 }
 

@@ -86,8 +86,8 @@ InModuleScope PSForge {
             }
 
             It "Throws an exception if you're not in a module folder" {
-                Push-Location $TestDrive/test-module/..
-                { getProjectRoot } | Should Throw
+                Push-Location $TestDrive
+                { getProjectRoot } | Should Throw "No .git directory found in"
                 Pop-Location
             }
 
