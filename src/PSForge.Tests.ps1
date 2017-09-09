@@ -61,4 +61,39 @@ InModuleScope PSForge {
 
     }
 
+    Describe "Smoke tests" {
+        
+        Push-Location $TestDrive
+        New-DSCModule test-module
+        Push-Location $TestDrive/test-module
+
+        Context "GetDependenciesManifest" {
+            It 'Should have created a dependency manifest' {
+                Test-Path $TestDrive/test-module/dependencies.psd1 | Should be $True
+            }
+    
+            It 'Should not throw an exception when fetching the dependency manifest' {
+                { GetDependenciesManifest } | Should not Throw
+            }        
+    
+            It 'Should be able to fetch the dependencies manifest as a hashtable' {
+               GetDependenciesManifest | Should not be $null
+            }
+
+            It 'Should have no dependencies by default' {
+                (GetDependenciesManifest).nugetPackages | Should be @()
+            }
+
+            It 'Should have default nuget feeds' {
+                (GetDependenciesManifest).nugetFeeds | Should be @("http://nuget.org/api/v2", "http://powershellgallery.com/api/v2")
+            }
+        }
+
+
+
+        Pop-Location
+        Pop-Location
+
+    }
+
 }
