@@ -51,6 +51,7 @@ InModuleScope PSForge {
         Push-Location $TestDrive
         New-DSCModule test-module
         Push-Location $TestDrive/test-module
+        $modulePath = [io.path]::combine($TestDrive, 'test-module') 
 
         Context "GetDependenciesManifest" {
             It 'Should have created a dependency manifest' {
@@ -76,12 +77,12 @@ InModuleScope PSForge {
 
         Context "GetProjectRoot" {
             It "Output same folder if you're in root already" {
-                getProjectRoot | should be "$TestDrive/test-module"
+                getProjectRoot | should be $modulePath
             }
 
             It "Output correct folder if you're in a subfolder" {
                 Push-Location $TestDrive/test-module/DSCResources
-                getProjectRoot | should be "$TestDrive/test-module"
+                getProjectRoot | should be $modulePath 
                 Pop-Location
             }
 
