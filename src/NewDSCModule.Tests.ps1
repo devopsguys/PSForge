@@ -5,6 +5,7 @@ InModuleScope PSForge {
         Mock Pop-Location {}
         Mock New-DSCResource {}
         Mock Get-DSCModuleGlobalConfig {}
+        Mock Get-Item {}
         Mock BootstrapDSCModule {}
         
 
@@ -30,4 +31,18 @@ InModuleScope PSForge {
             Assert-MockCalled New-DscResource -ParameterFilter { $ResourceName -eq "c" } -Exactly 1 -Scope It
         }
     }
+
+    Describe "Smoke tests" {
+        
+        Push-Location $TestDrive
+
+        It 'Should be able to create a module' {
+           { New-DSCModule "test-module" } | Should not Throw
+           Test-Path $TestDrive\test-module\test-module.psm1 | Should be $True
+        }
+
+        Pop-Location
+
+    }
+
 }

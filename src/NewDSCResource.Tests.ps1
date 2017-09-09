@@ -30,4 +30,17 @@ InModuleScope PSForge {
             Assert-MockCalled Pop-Location -Exactly 1 -Scope Describe
         }
     }
+
+    Describe "Smoke tests" {
+        
+        Push-Location $TestDrive
+
+        It 'Should be able to create a module' {
+           { New-DSCModule "test-module" -ResourceNames "test-resource" } | Should not Throw
+           Test-Path $TestDrive\test-module\DSCResources\test-resource\test-resource.psd1 | Should be $True
+        }
+
+        Pop-Location
+
+    }
 }

@@ -26,15 +26,16 @@ param(
     Write-Progress -Activity $Activity -Status "Scaffolding module filestructure" -percentComplete 30
     Invoke-PlasterWrapper $PlasterParams
 
-    Push-Location $ModuleName
-    $currentDirectory = (Get-Item -Path ".\" -Verbose).FullName
+    $ModuleDirectory = (Get-Item $ModuleName).FullName
+    Push-Location $ModuleDirectory
+
+    BootstrapDSCModule
+    Write-Output "Module bootstrapped at $ModuleDirectory"
 
     foreach ($resource in $ResourceNames)
     {
         New-DSCResource -ResourceName $resource
     }
 
-    BootstrapDSCModule
-    Write-Output "Module bootstrapped at $currentDirectory"
     Pop-Location
 }

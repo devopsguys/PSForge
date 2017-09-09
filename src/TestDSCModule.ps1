@@ -38,8 +38,7 @@ param (
     $KitchenParams = @($Action)
 
     if($Debug)
-    {   
-        Write-Output lol >> /tmp/lol
+    {
         $KitchenParams += @("--log-level","Debug")
     }
 
@@ -47,7 +46,6 @@ param (
     updateBundle
 
     Invoke-Paket update
-    Write-Output $BundleExec >> /tmp/lol
     Invoke-ExternalCommandRealtime "bundle" $BundleExec
 
     Pop-Location
