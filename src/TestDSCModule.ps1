@@ -34,17 +34,21 @@ param (
         $env:AZURERM_SUBSCRIPTION = $prompt
     }
 
+    $BundleExec = @('exec','kitchen')
     $KitchenParams = @($Action)
 
     if($Debug)
-    {
+    {   
+        Write-Output lol >> /tmp/lol
         $KitchenParams += @("--log-level","Debug")
     }
 
+    $BundleExec += $KitchenParams
     updateBundle
 
     Invoke-Paket update
-    Invoke-Expression "bundle exec kitchen ${KitchenParams}"
+    Write-Output $BundleExec >> /tmp/lol
+    Invoke-ExternalCommandRealtime "bundle" $BundleExec
 
     Pop-Location
 

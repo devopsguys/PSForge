@@ -1,6 +1,6 @@
 Import-Module Plaster
 
-function addToPath
+function addToPath 
 {
 param(
     [string]$path
@@ -40,6 +40,18 @@ Param(
     }
 
     return $result
+}
+
+function Invoke-ExternalCommandRealtime {
+    Param(
+        [Parameter(Mandatory=$True,Position=1)]
+        $command,
+        [Parameter(Mandatory=$False,Position=2)]
+        $arguments
+    )
+
+    Invoke-Expression "$command $arguments"
+    
 }
 
 function getOSPlatform{

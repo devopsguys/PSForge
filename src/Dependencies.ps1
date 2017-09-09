@@ -46,7 +46,8 @@ function installRuby
             Write-Progress -Activity $Activity -percentComplete 100 -Completed
             Remove-Item $rubyInstaller
             Push-Location $RubyPath
-            Invoke-ExternalCommand ".\gem" @("install", "bundler") | Out-Null
+            Write-Output "Installing bundler gem..."
+            Invoke-ExternalCommand ".\gem" @("install", "bundler")
             Pop-Location
             fixRubyCertStore
         }
@@ -79,14 +80,15 @@ function fixRubyCertStore {
 function updateBundle{
     if(-not (isOnPath "bundler"))
     {
-        Invoke-ExternalCommand "gem" @("install", "bundler") | Out-Null
+        Write-Output "Installing bundler gem..."
+        Invoke-ExternalCommand "gem" @("install", "bundler")
     }
 
     $bundle = Start-Process -FilePath "bundle" -ArgumentList "check" -Wait -NoNewWindow -RedirectStandardOutput stdout -PassThru
     Remove-Item stdout
     if($bundle.Exitcode -ne 0)
     {
-        Invoke-Expression "bundle install --path .bundle"
+        Invoke-ExternalCommandRealtime "bundle install --path .bundle"
     }
 }
 function BootstrapDSCModule

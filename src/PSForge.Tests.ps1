@@ -60,59 +60,5 @@ InModuleScope PSForge {
         }
 
     }
-    
-    Describe "InstallRuby" {
-
-        Mock addToPath {}
-        Mock Invoke-ExternalCommand {}
-        Mock Invoke-WebRequest {}
-        Mock New-Item {}
-        Mock Remove-Item {}
-        Mock fixRubyCertStore {}
-        Mock Test-Path { $False }
-        Mock Write-Debug {}
-        
-        Context "Windows" {
-            Mock isWindows { $True }
-            installRuby
-            It "Should run installers on Unix" {
-                Assert-MockCalled addToPath -Exactly 1 -Scope Context
-                Assert-MockCalled Invoke-WebRequest -Exactly 1 -Scope Context
-                Assert-MockCalled Invoke-ExternalCommand -Exactly 1 -Scope Context
-                Assert-MockCalled Write-Debug -ParameterFilter { $InputObject -eq "Using system ruby on non-windows platforms" } -Exactly 0 -Scope Context
-            }
-        }
-
-        Context "Unix" {
-            Mock isWindows { $False }
-            installRuby
-            It "Should not run any installers on Unix" {
-                Assert-MockCalled addToPath -Exactly 0 -Scope Context
-                Assert-MockCalled Invoke-WebRequest -Exactly 0 -Scope Context
-                Assert-MockCalled Invoke-ExternalCommand -Exactly 0 -Scope Context
-                Assert-MockCalled Write-Debug -ParameterFilter { $Message -eq "Using system ruby on non-windows platforms" } -Exactly 1 -Scope Context
-            }
-        }
-    }
-
-    Describe "fixRubyCertStore" {
-
-        Class FakeWebClient { DownloadFile($arg1, $arg2) {} }
-        $fakeWebClient = New-Object FakeWebClient
-
-        Mock isWindows { $True }
-        Mock New-Item {}
-        Mock New-Object { $fakeWebClient }
-
-        fixRubyCertStore
-
-        It "Should create the directory to host the CACERT" {
-            Assert-MockCalled New-Item -ParameterFilter { $Path -eq "C:\RUBY_SSL" } -Exactly 1 -Scope Describe
-        }
-
-        It "Should download the CACERT file" {
-            Assert-MockCalled New-Object -ParameterFilter { $TypeName -eq "System.Net.WebClient" } -Exactly 1 -Scope Describe
-        }
-    }
 
 }
