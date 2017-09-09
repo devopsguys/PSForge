@@ -1,11 +1,6 @@
 InModuleScope PSForge {
     Describe "New-DSCResource" {
         
-        $moduleManifest = @{
-            "ModuleVersion" = "1.0.0";
-            "Author" = "Edmund Dipple";
-            "Description" = "Test Module";
-        }
 
         Mock Pop-Location {}
         Mock Push-Location {}
@@ -32,6 +27,22 @@ InModuleScope PSForge {
     }
 
     Describe "Smoke tests" {
+
+        $moduleManifest = @{
+            "ModuleVersion" = "1.0.0";
+            "Author" = "Edmund Dipple";
+            "Description" = "Test Module";
+        }
+
+        $fakeConfigFile = @'
+{
+"username": "Test User",
+"company": "None"
+}
+'@
+
+        Mock Test-Path { $True } -ParameterFilter { $Path -eq "$HOME/DSCWorkflowConfig.json"}
+        Mock Get-Content { $fakeConfigFile } -ParameterFilter { $Path -eq "$HOME/DSCWorkflowConfig.json"}
         
         Push-Location $TestDrive
 

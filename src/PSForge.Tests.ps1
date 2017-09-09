@@ -48,6 +48,16 @@ InModuleScope PSForge {
 
     Describe "Smoke tests" {
         
+        $fakeConfigFile = @'
+{
+"username": "Test User",
+"company": "None"
+}
+'@
+        
+        Mock Test-Path { $True } -ParameterFilter { $Path -eq "$HOME/DSCWorkflowConfig.json"}
+        Mock Get-Content { $fakeConfigFile } -ParameterFilter { $Path -eq "$HOME/DSCWorkflowConfig.json"}
+
         Push-Location $TestDrive
         New-DSCModule test-module
         Push-Location $TestDrive/test-module
