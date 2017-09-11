@@ -10,6 +10,8 @@ if([Environment]::OSVersion.Platform -eq "Unix"){
 
 # Fix Pester on Unix
 if([environment]::OSVersion.platform -eq "Unix"){
+    $TestPlasterManifest = "./packages/Plaster/TestPlasterManifest.ps1"
+    (Get-Content $TestPlasterManifest).replace('$schemaPath = "$PSScriptRoot\Schema\PlasterManifest-v1.xsd"', '$schemaPath = [io.path]::combine($PSScriptRoot, "Schema", "PlasterManifest-v1.xsd")') | Set-Content $TestPlasterManifest  
     $mockFile = "./packages/Pester/Functions/Mock.ps1"
     (Get-Content $mockFile).replace('if ($PSVersionTable.PSVersion -ge ''5.0.10586.122'')', 'if (''5.0.10586.122'' -le $PSVersionTable.PSVersion)') | Set-Content $mockFile    
 }
