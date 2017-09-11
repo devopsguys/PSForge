@@ -7,3 +7,4 @@ paket/paket.targets
 ruby-*/
 coverage.xml
 TestResults.xml
+*.log
