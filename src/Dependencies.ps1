@@ -1,4 +1,33 @@
-﻿function checkDependencies
+﻿function isOnPath
+{
+    param(
+        [Parameter(Mandatory=$True,Position=1)]
+        [string]$cmd
+    )
+
+    $bin = Get-Command -ErrorAction "SilentlyContinue" $cmd
+    return ($null -ne $bin)
+}
+
+function addToPath 
+{
+param(
+    [string]$path
+)
+    $delimiter = ";"
+
+    if(isUnix)
+    {
+        $delimiter = ":"
+    }
+
+    if(-not (($env:PATH -split $delimiter) -contains $path))
+    {
+        $env:PATH = $path,$env:PATH -join $delimiter
+    }
+
+}
+function checkDependencies
 {
     if(isUnix)
     {

@@ -31,7 +31,7 @@ $excludeTag = "not" + [environment]::OSVersion.Platform
 
 $testFiles = Get-Item "${PSScriptRoot}\src\*.Tests.ps1"
 $sourceFiles = Get-Item "${PSScriptRoot}\src\*.ps1" -Exclude *.Tests.ps1
-$sourceFiles += Get-Item "${PSScriptRoot}\PSForge.psm1"
+# $sourceFiles += Get-Item "${PSScriptRoot}\PSForge.psm1"
 
 $result = Invoke-Pester -Path $testFiles -OutputFormat NUnitXml -OutputFile TestResults.xml -PassThru -CodeCoverage $sourceFiles -CodeCoverageOutputFile coverage.xml -ExcludeTag $excludeTag
     

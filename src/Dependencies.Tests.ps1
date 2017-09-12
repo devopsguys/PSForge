@@ -213,4 +213,18 @@
         
     }
 
+    Describe "isOnPath" {
+        Mock Get-Command { return $True } -ParameterFilter { $Name -eq "installed_binary" }
+        Mock Get-Command { return $False } -ParameterFilter { $Name -eq "non_installed_binary" }
+
+        it "Should return true if a binary is on the path" {
+            isOnPath "installed_binary" | should -eq $True
+        }
+
+        it "Should return false if a binary is not on the path" {
+            isOnPath "non_installed_binary" | should -eq $True
+        }
+        
+    }
+
 }
