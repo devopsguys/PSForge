@@ -49,6 +49,7 @@
         <file source='_dummy'  destination='DSCResources\.dummy'/>
         <file source='_dummyModuleFile'  destination='${PLASTER_PARAM_project_name}.psm1'/>
         <file source='dependencies.psd1'  destination='dependencies.psd1'/>
+        <file source='PSScriptAnalyzerSettings.psd1'  destination='PSScriptAnalyzerSettings.psd1'/>
         <!-- <message>
 
             =============================================================================================

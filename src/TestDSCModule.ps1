@@ -12,6 +12,15 @@ param (
 
     BootstrapDSCModule
 
+    if(isWindows){
+        Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse -Settings $PWD\PSScriptAnalyzerSettings.psd1
+        if(-Not $?){
+            exit 1
+        }
+    }else {
+        Write-Output "INFO: PSScriptAnalyzer only runs reliably on Windows at the moment, so it is disabled on Unix."
+    }
+
     $azureRMCredentials = "$HOME/.azure/credentials"
 
     if( -not (Test-Path $azureRMCredentials))

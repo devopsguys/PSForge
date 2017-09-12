@@ -17,7 +17,10 @@ FunctionsToExport = @(
 CmdletsToExport = '*'
 VariablesToExport = '*'
 AliasesToExport = '*'
-RequiredModules = @(@{ModuleName = 'Plaster'; ModuleVersion = '1.0.1'; })
+RequiredModules = @(
+    @{ModuleName = 'Plaster'; ModuleVersion = '1.0.1'; },
+    @{ModuleName = 'PSScriptAnalyzer'; ModuleVersion = '1.16.1'; }
+)
 PrivateData = @{
     PSData = @{
     } # End of PSData hashtable

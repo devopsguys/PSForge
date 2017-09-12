@@ -52,6 +52,11 @@ InModuleScope PSForge {
            Test-Path $TestDrive\test-module\test-module.psm1 | Should be $True
         }
 
+        It 'Should create a valid PSScriptAnalyzer config file' {
+            Test-Path $TestDrive\test-module\PSScriptAnalyzerSettings.psd1
+            { Import-LocalizedData -BaseDirectory "$TestDrive\test-module" -FileName PSScriptAnalyzerSettings.psd1 } | Should not Throw
+        }
+
         Pop-Location
 
     }
