@@ -88,7 +88,7 @@ function updateBundle{
     Remove-Item stdout
     if($bundle.Exitcode -ne 0)
     {
-        Invoke-ExternalCommandRealtime "bundle install --path .bundle"
+        Invoke-ExternalCommandRealtime "bundle" @("install", "--path", ".bundle")
     }
 }
 function BootstrapDSCModule

@@ -183,4 +183,34 @@
         }
     }
 
+    Describe "updateBundle" {
+
+        . $PSScriptRoot\PesterHelpers.ps1
+
+        Mock isOnPath { $false } -ParameterFilter { $cmd -eq "bundler" }
+        Mock Invoke-ExternalCommand {}
+        Mock Invoke-ExternalCommandRealtime {}
+        Mock Start-Process { return @{"ExitCode" = 1} }
+        Mock Remove-Item {}
+
+        
+        It "Should install bundler gem if not on the path" {
+            updateBundle
+            Assert-MockCalled Invoke-ExternalCommand -ParameterFilter {  $Command -eq "gem" -and (Compare-Array $Arguments @("install", "bundler")) } -Exactly 1 -Scope It
+        }
+
+        It "Should check for updates to bundled gems" {
+            Mock Start-Process { return @{"ExitCode" = 1} }
+            updateBundle
+            Assert-MockCalled Start-Process -ParameterFilter { $FilePath -eq "bundle" -and $ArgumentList -eq "check" } -Exactly 1 -Scope It
+        }
+
+        It "Should not update bundle if there are no pending updates" {
+            Mock Start-Process { return @{"ExitCode" = 0} }
+            updateBundle
+            Assert-MockCalled Invoke-ExternalCommandRealtime -ParameterFilter { $Command -eq "bundle" -and (Compare-Array $Arguments @("install", "--path", ".bundle")) } -Exactly 0 -Scope It
+        }
+        
+    }
+
 }
