@@ -16,10 +16,8 @@ if([environment]::OSVersion.platform -eq "Unix"){
     (Get-Content $mockFile).replace('if ($PSVersionTable.PSVersion -ge ''5.0.10586.122'')', 'if (''5.0.10586.122'' -le $PSVersionTable.PSVersion)') | Set-Content $mockFile    
 }
 
-Remove-Module Pester -Force -ErrorAction SilentlyContinue 
-Remove-Module PSForge -Force -ErrorAction SilentlyContinue
-Import-Module .\PSForge.psm1
-Import-Module .\packages\Pester\Pester.psd1
+Get-Module | Remove-Module -Force -ErrorAction SilentlyContinue 
+Get-ChildItem -Recurse *.psm1 | Import-Module -Force
 
 Import-LocalizedData -BaseDirectory "." -FileName "PSForge.psd1" -BindingVariable metadata
 
