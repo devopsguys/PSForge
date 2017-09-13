@@ -3,7 +3,8 @@ function Test-DSCModule
 param (
     [ValidateSet('create', 'converge', 'verify', 'test','destroy','login')]
     [string] $Action = 'verify',
-    [switch] $Debug
+    [switch] $Debug,
+    [switch] $SkipScriptAnalyzer
 )
 
     Push-Location "$(getProjectRoot)"
@@ -12,14 +13,17 @@ param (
 
     BootstrapDSCModule
 
-    if(isWindows){
-        Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse -Settings $PWD\PSScriptAnalyzerSettings.psd1
-        if(-Not $?){
-            exit 1
+    if(-not $SkipScriptAnalyzer) {
+        if(isWindows){
+            Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse -Settings $PWD\PSScriptAnalyzerSettings.psd1
+            if(-Not $?){
+                exit 1
+            }
+        }else {
+            Write-Output "INFO: PSScriptAnalyzer only runs reliably on Windows at the moment, so it is disabled on Unix."
         }
-    }else {
-        Write-Output "INFO: PSScriptAnalyzer only runs reliably on Windows at the moment, so it is disabled on Unix."
     }
+
 
     $azureRMCredentials = "$HOME/.azure/credentials"
 
