@@ -7,16 +7,19 @@ Vagrant.configure("2") do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/xenial64"
 
+  config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    v.customize ["modifyvm", :id, "--nictype1", "Am79C973"]
+  end
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-    sudo apt-add-repository ppa:brightbox/ruby-ng
+
+    curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+    curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft.list
+
     sudo apt-get update
-    sudo apt-get install -y ruby2.3
-    wget https://github.com/PowerShell/PowerShell/releases/download/v6.0.0-beta.6/powershell_6.0.0-beta.6-1ubuntu1.16.04.1_amd64.deb
-    apt-get install -y libunwind8 libcurl3 mono-complete
-    dpkg -i powershell_6.0.0-beta.6-1ubuntu1.16.04.1_amd64.deb
+    sudo apt-get install ruby2.3 powershell mono-complete -y --allow-unauthenticated
+
   SHELL
 end
