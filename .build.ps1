@@ -35,10 +35,8 @@ task FetchDependencies -before ImportModule {
 }
 
 task ImportModule -before UnitTest, SmokeTest {
-    Remove-Module Pester -Force -ErrorAction SilentlyContinue 
-    Remove-Module PSForge -Force -ErrorAction SilentlyContinue
-    Import-Module .\PSForge.psm1
-    Import-Module .\packages\Pester\Pester.psd1
+    Get-Module | Remove-Module -Force -ErrorAction SilentlyContinue 
+    Get-ChildItem -Depth 1 -Recurse *.psm1 | Import-Module -Force
 }
 
 task UnitTest {
