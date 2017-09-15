@@ -5,6 +5,7 @@ InModuleScope PSForge {
         Mock Pop-Location {}
         Mock Test-Path { $False } -ParameterFilter { $Path -eq ".\paket.exe" }
         Mock Invoke-ExternalCommand {}
+        Mock Invoke-ExternalCommandRealtime {}
 
         Context "Windows" {
             It "Runs the paket bootrapper natively on Windows" {
@@ -29,7 +30,7 @@ InModuleScope PSForge {
         Mock getOSPlatform { "windows" }
         Mock generatePaketFiles {}
         Mock getProjectRoot {}
-        Mock Invoke-ExternalCommand {} -ParameterFilter { $Command -eq ".paket\paket.exe" }
+        Mock Invoke-ExternalCommandRealtime {} -ParameterFilter { $Command -eq ".paket\paket.exe" }
         Mock clearPaketFiles {}
         Mock Test-Path { $True } -ParameterFilter { $Path -eq ".\.paket\paket.exe" }
         Mock BootstrapDSCModule {}
@@ -57,17 +58,17 @@ InModuleScope PSForge {
 
         It "Should execute Paket with mono on Unix" {
             Mock getOSPlatform { "unix" }
-            Mock Invoke-ExternalCommand { } -ParameterFilter { $Command -eq "mono .paket\paket.exe" } 
-            Mock Invoke-ExternalCommand { "linux" } -ParameterFilter { $Command -eq "uname" } 
+            Mock Invoke-ExternalCommandRealtime { } -ParameterFilter { $Command -eq "mono .paket\paket.exe" } 
+            Mock Invoke-ExternalCommandRealtime { "linux" } -ParameterFilter { $Command -eq "uname" } 
             Invoke-Paket
-            Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Exactly 1 -Scope It
+            Assert-MockCalled Invoke-ExternalCommandRealtime -ParameterFilter { $Command -eq "mono .paket\paket.exe" } -Exactly 1 -Scope It
         }
 
         It "Should execute Paket directly on Windows" {
             Mock getOSPlatform { "windows" } 
-            Mock Invoke-ExternalCommand {} -ParameterFilter { $Command -eq ".paket\paket.exe" } 
+            Mock Invoke-ExternalCommandRealtime {} -ParameterFilter { $Command -eq ".paket\paket.exe" } 
             Invoke-Paket
-            Assert-MockCalled Invoke-ExternalCommand -ParameterFilter { $Command -eq ".paket\paket.exe" } -Exactly 1 -Scope It
+            Assert-MockCalled Invoke-ExternalCommandRealtime -ParameterFilter { $Command -eq ".paket\paket.exe" } -Exactly 1 -Scope It
         }
 
     }
@@ -143,6 +144,30 @@ dependencies
             Assert-MockCalled Remove-Item -ParameterFilter { $Path -eq "paket.template" } -Exactly 1 -Scope Describe
             Assert-MockCalled Remove-Item -ParameterFilter { $Path -eq "paket.dependencies" } -Exactly 1 -Scope Describe
         }
+    }
+
+    Describe "Smoke Tests" {
+
+        $fakeConfigFile = @'
+{
+    "username": "Test User",
+    "company": "None"
+}
+'@
+
+        Mock Test-Path { $True } -ParameterFilter { $Path -eq "$HOME/DSCWorkflowConfig.json"}
+        Mock Get-Content { $fakeConfigFile } -ParameterFilter { $Path -eq "$HOME/DSCWorkflowConfig.json"}
+
+        Push-Location $TestDrive
+
+        It "No exception if you run Invoke-Paket after creating a module" {
+            New-DSCModule "test-module"
+            Set-Location "test-module"
+            { Invoke-Paket --help } | Should not Throw
+        }
+
+        Pop-Location
+
     }
 
 }

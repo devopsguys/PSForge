@@ -16,7 +16,7 @@ function Invoke-Paket
         $paketBin = "mono .paket\paket.exe"
     }
 
-    Invoke-ExternalCommand $paketBin $args
+    Invoke-ExternalCommandRealtime $paketBin $args
 
     clearPaketFiles
 
