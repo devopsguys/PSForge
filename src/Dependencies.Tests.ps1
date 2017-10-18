@@ -170,7 +170,7 @@
 
         Mock isWindows { $True }
         Mock New-Item {}
-        Mock New-Object { $fakeWebClient }
+        Mock New-Object { $fakeWebClient } -ParameterFilter { $TypeName -eq "System.Net.WebClient" }
 
         fixRubyCertStore
 
