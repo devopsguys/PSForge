@@ -1,11 +1,9 @@
-# A sample Gemfile
 source "https://rubygems.org"
 
-# gem "rails"
-gem "winrm", "2.2.2"
-gem "winrm-fs", "1.0.1"
-gem "test-kitchen", "1.16.0"
-gem "kitchen-azurerm", "0.8.1"
+gem "winrm"
+gem "winrm-fs"
+gem "test-kitchen"
+gem "kitchen-azurerm"
 gem "kitchen-dsc", :github => 'elmundio87/kitchen-dsc', :branch => 'master'
-gem "kitchen-vagrant", "1.1.0"
-gem "kitchen-pester", "0.7.1"
+gem "kitchen-vagrant"
+gem "kitchen-pester"
