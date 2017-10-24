@@ -15,7 +15,7 @@ param (
 
     if(-not $SkipScriptAnalyzer) {
         if(isWindows){
-            Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse -Settings $PWD\PSScriptAnalyzerSettings.psd1
+            Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse
             if(-Not $?){
                 exit 1
             }
