@@ -1,4 +1,4 @@
-
+$global:isOSX = $isMacOS # Fix compatibility issue in Pester (new PS beta)
 
 if([Environment]::OSVersion.Platform -eq "Unix"){
     $env:PSModulePath = "${PWD}/packages:" + $env:PSModulePath
