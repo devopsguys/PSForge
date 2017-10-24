@@ -12,7 +12,7 @@ verifier:
 
 driver_config:
   subscription_id: <!= ENV['AZURERM_SUBSCRIPTION'] !>
-  location: 'West Europe'
+  location: 'East US'
   machine_size: 'Standard_D1'
 
 platforms:
