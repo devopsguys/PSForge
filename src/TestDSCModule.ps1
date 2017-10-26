@@ -28,8 +28,8 @@ param (
 
     if(-not $SkipScriptAnalyzer) {
         if(isWindows){
-            Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse
-            if(-Not $?){
+          $result = Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse
+            if($result.count -gt 0){
                 exit 1
             }
         }else {
