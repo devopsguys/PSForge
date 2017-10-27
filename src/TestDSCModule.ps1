@@ -15,26 +15,29 @@ param (
 
     BootstrapDSCModule
 
+    if(-not $SkipScriptAnalyzer) {
+        if(isWindows){
+          Write-Output "[PSForge] Running PSScriptAnalyzer on resources"
+          $result = Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse
+            if($result.count -gt 0){
+                Write-Output $result
+                Throw "One or more issues found by PSScriptAnalyzer"
+            }
+        }else {
+            Write-Output "INFO: PSScriptAnalyzer only runs reliably on Windows at the moment, so it is disabled on Unix."
+        }
+    }
+
     if(-not $SkipUnitTests){
+      Write-Output "[PSForge] Running unit tests on resources"
       $testFiles = Get-Item ".\DSCResources\**\*.Tests.ps1" -ErrorAction SilentlyContinue
       $sourceFiles = Get-Item ".\DSCResources\**\*.Tests.ps1" -Exclude *.Tests.ps1 -ErrorAction SilentlyContinue
       
       $result = Invoke-Pester -Path $testFiles -OutputFormat NUnitXml -OutputFile TestResults.xml -PassThru -CodeCoverage $sourceFiles -CodeCoverageOutputFile CodeCoverage.xml
       
       if($result.FailedCount -gt 0){
-        exit 1
+        Throw "One or more unit tests failed"
       }      
-    }
-
-    if(-not $SkipScriptAnalyzer) {
-        if(isWindows){
-          $result = Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse
-            if($result.count -gt 0){
-                exit 1
-            }
-        }else {
-            Write-Output "INFO: PSScriptAnalyzer only runs reliably on Windows at the moment, so it is disabled on Unix."
-        }
     }
 
     if(-not $SkipIntegrationTests) {
