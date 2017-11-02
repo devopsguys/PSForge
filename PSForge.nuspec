@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PSForge</id>
-    <version>1.1.4</version>
+    <version>1.2.0</version>
     <authors>Edmund Dipple</authors>
     <owners>DevOpsGuys</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
