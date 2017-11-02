@@ -18,8 +18,9 @@ CmdletsToExport = '*'
 VariablesToExport = '*'
 AliasesToExport = '*'
 RequiredModules = @(
-    @{ModuleName = 'Plaster'; ModuleVersion = '1.0.1'; },
+    @{ModuleName = 'Plaster'; ModuleVersion = '1.1.3'; },
     @{ModuleName = 'PSScriptAnalyzer'; ModuleVersion = '1.16.1'; }
+    @{ModuleName = 'Pester'; ModuleVersion = '4.0.8'; }
 )
 PrivateData = @{
     PSData = @{
