@@ -15,7 +15,7 @@ param (
 
     BootstrapDSCModule
 
-    if(-not $SkipScriptAnalyzer) {
+    if(-not $SkipScriptAnalyzer -and ($Action -in @("setup","converge","create","test","verify"))) {
         if(isWindows){
           Write-Output "[PSForge] Running PSScriptAnalyzer on resources"
           $result = Invoke-ScriptAnalyzer -Path .\DSCResources -Recurse
@@ -28,7 +28,7 @@ param (
         }
     }
 
-    if(-not $SkipUnitTests){
+    if(-not $SkipUnitTests -and ($Action -in @("setup","converge","create","test","verify"))){
       Write-Output "[PSForge] Running unit tests on resources"
       $testFiles = Get-Item ".\DSCResources\**\*.Tests.ps1" -ErrorAction SilentlyContinue
       $sourceFiles = Get-Item ".\DSCResources\**\*.Tests.ps1" -Exclude *.Tests.ps1 -ErrorAction SilentlyContinue
@@ -74,7 +74,10 @@ param (
       $BundleExec += $KitchenParams
       updateBundle
 
-      Invoke-Paket update
+      if($Action -in @("setup","converge","create","test","verify")){
+          Invoke-Paket update
+      }
+      
       Invoke-ExternalCommandRealtime "bundle" $BundleExec
     }
 
