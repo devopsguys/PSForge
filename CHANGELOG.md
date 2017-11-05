@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.2.1
+
+* When running Test-DSCModule, don't fetch nuget dependencies and run tests unless the test kitchen action requires them
+* Prevented the .git and ruby folders from being included in the nuget package
+
 ## 1.2.0
 
 * Added support for PSScriptAnalyzer
