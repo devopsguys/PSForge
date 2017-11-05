@@ -16,4 +16,7 @@
       <dependency id="Pester" version="4.0.8" />
     </dependencies>
   </metadata>
+  <files>
+    <file src="**\*" target="\" exclude="ruby-*\**\*;.git\**\*" />
+  </files>
 </package>
