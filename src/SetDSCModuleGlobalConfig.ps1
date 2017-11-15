@@ -12,8 +12,10 @@ function Set-DSCModuleGlobalConfig
     $json = Get-DSCModuleGlobalConfig -NoCheck
     $Key = $Key.ToLower()
     
+    $utf8 = [System.Text.Encoding]::UTF8
+
     $json | Add-Member NoteProperty $Key $Value -Force
     $json = ConvertTo-Json -depth 100 -InputObject $json
-    $json | Out-File $configFile -encoding utf8
+    $json | Out-File $configFile -Encoding $utf8
 
 }

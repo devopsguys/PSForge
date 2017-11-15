@@ -84,22 +84,24 @@ function generatePaketFiles
 
     Copy-Item -Recurse "$(GetPSForgeModuleRoot)\paket" ".\.paket" | Out-Null
 
+    $utf8 = [System.Text.Encoding]::UTF8
+
     ForEach($nugetFeed in $dependenciesManifest.NugetFeeds)
     {
-        "source $nugetFeed" | Out-File paket.dependencies -Append -Encoding utf8
+        "source $nugetFeed" | Out-File paket.dependencies -Append -Encoding $utf8 
     }
 
     ForEach($nugetPackage in $dependenciesManifest.NugetPackages)
     {
-        "nuget $nugetPackage" | Out-File paket.dependencies -Append -Encoding utf8
+        "nuget $nugetPackage" | Out-File paket.dependencies -Append -Encoding $utf8 
     }
 
-    GeneratePaketTemplate $moduleName $moduleManifest | Out-File  paket.template -Append -Encoding utf8
+    GeneratePaketTemplate $moduleName $moduleManifest | Out-File  paket.template -Append -Encoding $utf8
 
     ForEach($nugetPackage in $dependenciesManifest.NugetPackages)
     {
 
-        "    $(($nugetPackage -Split " ")[0]) == LOCKEDVERSION" | Out-File paket.template -Append -Encoding utf8
+        "    $(($nugetPackage -Split " ")[0]) == LOCKEDVERSION" | Out-File paket.template -Append -Encoding $utf8
     }
 
 }
