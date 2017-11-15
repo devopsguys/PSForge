@@ -84,7 +84,7 @@ function generatePaketFiles
 
     Copy-Item -Recurse "$(GetPSForgeModuleRoot)\paket" ".\.paket" | Out-Null
 
-    if($PSVersionTable.PSVersion.Major -ge 6} {
+    if($PSVersionTable.PSVersion.Major -ge 6) {
       $utf8 = [System.Text.Encoding]::UTF8
     } else {
       $utf8 = "utf8"

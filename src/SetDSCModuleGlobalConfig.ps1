@@ -13,7 +13,7 @@ function Set-DSCModuleGlobalConfig
     $Key = $Key.ToLower()
     
 
-    if($PSVersionTable.PSVersion.Major -ge 6} {
+    if($PSVersionTable.PSVersion.Major -ge 6) {
       $utf8 = [System.Text.Encoding]::UTF8
     } else {
       $utf8 = "utf8"
