@@ -1,3 +1,3 @@
 #!/bin/bash
 
-powershell CI.ps1
+pwsh CI.ps1
