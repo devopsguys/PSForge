@@ -12,7 +12,12 @@ function Set-DSCModuleGlobalConfig
     $json = Get-DSCModuleGlobalConfig -NoCheck
     $Key = $Key.ToLower()
     
-    $utf8 = [System.Text.Encoding]::UTF8
+
+    if($PSVersionTable.PSVersion.Major -ge 6} {
+      $utf8 = [System.Text.Encoding]::UTF8
+    } else {
+      $utf8 = "utf8"
+    }
 
     $json | Add-Member NoteProperty $Key $Value -Force
     $json = ConvertTo-Json -depth 100 -InputObject $json
