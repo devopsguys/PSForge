@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.2.2
+
+* Fixed compatibility issue with Powershell Core 6.0.0-beta.9
+
 ## 1.2.1
 
 * When running Test-DSCModule, don't fetch nuget dependencies and run tests unless the test kitchen action requires them
